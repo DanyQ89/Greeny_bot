@@ -1,6 +1,7 @@
 from .database import SqlAlchemyBase
-from sqlalchemy import Column, String, LargeBinary, BigInteger, Float, Boolean, Integer
+from sqlalchemy import Column, String, LargeBinary, Float, Boolean, Integer
 from sqlalchemy import Date
+
 
 class User(SqlAlchemyBase):
     __tablename__ = 'users'

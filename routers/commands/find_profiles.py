@@ -1,16 +1,11 @@
-import asyncio
-import pickle
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, InputMediaPhoto, InlineKeyboardMarkup, Message
+from aiogram.types import CallbackQuery, InputMediaPhoto, Message
 from aiogram.fsm.context import FSMContext
 from data import database
 from data.user_form import User
-from utils.help_functions import show_user_profile
-from sqlalchemy import and_, func, select
-# from sqlalchemy.sql import expression
+from sqlalchemy import and_, select
 from math import radians, sin, cos, atan2, sqrt
 from utils.keyboards import like_or_not_kb
-from routers.commands.show_profile import show_user_by_user_id
 from settings_user import Settings
 
 find_profiles_router = Router(name=__name__)
@@ -20,8 +15,7 @@ find_profiles_router = Router(name=__name__)
 async def to_find_profiles(query: CallbackQuery, state: FSMContext):
     await find_profiles(query.message, state)
 
-# @find_profiles_router.callback_query(F.data == 'like')
-# @find_profiles_router.callback_query(F.data == 'dislike')
+
 @find_profiles_router.message(Settings.find_profiles)
 async def find_profiles(msg: Message, state: FSMContext):
     session = await database.create_session()  # AsyncSession
@@ -32,7 +26,6 @@ async def find_profiles(msg: Message, state: FSMContext):
     if user.last_user_id:
         reaction = msg.text
         if reaction == '🩷':
-            # user = await session.execute(select(User).filter_by(user_id=str(msg.from_user.id)))
             user_liked = await session.execute(select(User).filter_by(id=user.last_user_id))
             user_liked = user_liked.scalar().first()
             await msg.bot.send_message(chat_id=user_liked.user_id, text=f'Вас лайкнул @{user.username}')
@@ -57,6 +50,7 @@ async def find_profiles(msg: Message, state: FSMContext):
             arr = []
         user.arr_of_ids = bytes(arr)
         await session.commit()
+        await session.close()
     else:
         await get_users_by_distance(msg.from_user.id)
         await find_profiles(msg, state)

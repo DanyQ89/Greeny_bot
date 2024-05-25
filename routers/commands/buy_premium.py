@@ -1,9 +1,6 @@
-import asyncio
-
 from aiogram import Router, F, types
 from aiogram.types import CallbackQuery, LabeledPrice, PreCheckoutQuery, Message
 from aiogram.fsm.context import FSMContext
-# from data.database import create_session
 from data import database
 from sqlalchemy import select
 from data.user_form import User
@@ -16,14 +13,16 @@ from commands_inline_user import PremiumInline
 
 premium_router = Router(name=__name__)
 
+
 @premium_router.callback_query(F.data == 'get_premium')
 async def choose_premium(query: CallbackQuery, state: FSMContext):
+    await state.clear()
     await query.message.answer('<b>Выберите длительность подписки:</b>', reply_markup=premium_types_kb())
-    # await state.set_state(PremiumInline.days)
 
 
 @premium_router.callback_query(PremiumInline.filter())
 async def premium(query: CallbackQuery, state: FSMContext):
+    await state.clear()
     number = query.data.split(':')[1]
     if number == '30':
         amount = 299 * 100
@@ -43,9 +42,11 @@ async def premium(query: CallbackQuery, state: FSMContext):
         prices=[LabeledPrice(label=f'✨{number} дней Greeny premium✨', amount=amount)]
     )
 
+
 @premium_router.pre_checkout_query()
 async def pre_checkout_query_handler(pre_checkout_q: PreCheckoutQuery):
     await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=True)
+
 
 @premium_router.message(lambda message: message.content_type == types.ContentType.SUCCESSFUL_PAYMENT)
 async def successful_payment_handler(msg: Message, state: FSMContext):
@@ -78,4 +79,3 @@ async def successful_payment_handler(msg: Message, state: FSMContext):
     await sess.commit()
     await sess.close()
     await show_user_profile(msg, state)
-

@@ -30,3 +30,5 @@ async def age_height(msg: Message, state: FSMContext):
     except Exception as err:
         await msg.answer('<i> Введите ваш возраст <u>целым числом</u> </i>')
         await state.set_state(Settings.age)
+    finally:
+        await session.close()
