@@ -30,7 +30,6 @@ async def text_who(msg: Message, state: FSMContext):
                 text = ''
             user.mainText = text
             await session.commit()
-            await session.close()
             await msg.answer('<b> Укажите свой пол </b>', reply_markup=who_kb())
             await state.set_state(Settings.who)
         else:
@@ -43,4 +42,7 @@ async def text_who(msg: Message, state: FSMContext):
     except Exception as err:
         await msg.answer('<i> Напишите что-то о себе или выберите кнопку "Не хочу ничего писать" </i>')
         await state.set_state(Settings.text_of_anketa)
+
+    finally:
+        await session.close()
 

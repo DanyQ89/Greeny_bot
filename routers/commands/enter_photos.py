@@ -34,6 +34,7 @@ async def photo_text(msg: Message, state: FSMContext):
             elif lenn < 5:
                 user.photos += f' {photo_id}'
             await session.commit()
+            await session.close()
 
             if lenn + 1 > 4:
                 await msg.answer('<b> Отлично! Фотографии сохранены </b>')
@@ -54,22 +55,8 @@ async def photo_text(msg: Message, state: FSMContext):
                              reply_markup=ReplyKeyboardRemove())
 
                 await state.set_state(Settings.photo)
+            await session.close()
     except Exception as err:
-        # try:
-        #     if msg.text in photos_kb_button:
-        #         if user.photos:
-        #             await msg.answer('<b> Отлично! Фотографии сохранены </b>')
-        #             await msg.answer('<b> Напишите немного о себе </b>', reply_markup=text_of_anketa_kb())
-        #             await state.set_state(Settings.text_of_anketa)
-        #         else:
-        #             await msg.answer('<i> Анкета не может содержать <u>ни одной</u> фотографии </i>',
-        #                              reply_markup=ReplyKeyboardRemove())
-        #
-        #             await state.set_state(Settings.photo)
-        # except Exception as err:
-        #     # await msg.answer(str(err))
         await msg.answer('<b> Пришлите фотографию </b>')
         await state.set_state(Settings.photo)
 
-# import asyncio
-# asyncio.run(photo_text(Message, FSMContext))

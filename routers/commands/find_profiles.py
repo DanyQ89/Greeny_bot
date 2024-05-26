@@ -1,79 +1,94 @@
-import asyncio
-import pickle
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, InputMediaPhoto, InlineKeyboardMarkup, Message
+from aiogram.types import CallbackQuery, InputMediaPhoto, Message
 from aiogram.fsm.context import FSMContext
 from data import database
 from data.user_form import User
-from utils.help_functions import show_user_profile
-from sqlalchemy import and_, func, select
-# from sqlalchemy.sql import expression
+from sqlalchemy import and_, select
 from math import radians, sin, cos, atan2, sqrt
 from utils.keyboards import like_or_not_kb
-from routers.commands.show_profile import show_user_by_user_id
 from settings_user import Settings
+import pickle
 
 find_profiles_router = Router(name=__name__)
 
-
 @find_profiles_router.callback_query(F.data == 'find_profiles')
-async def to_find_profiles(query: CallbackQuery, state: FSMContext):
-    await find_profiles(query.message, state)
+async def before_f_p(query: CallbackQuery, state: FSMContext):
+    await state.set_state(Settings.find_profiles)
+    await query.message.answer('<b> Загружаем профили... </b>', reply_markup=like_or_not_kb())
+    await find_profiles_message(query.message, state, str(query.from_user.id))
 
-# @find_profiles_router.callback_query(F.data == 'like')
-# @find_profiles_router.callback_query(F.data == 'dislike')
 @find_profiles_router.message(Settings.find_profiles)
-async def find_profiles(msg: Message, state: FSMContext):
-    session = await database.create_session()  # AsyncSession
-    user = await session.execute(select(User).filter_by(user_id=str(msg.from_user.id)))
-    user = user.scalars().first()
-    arr = user.arr_of_ids
+async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
+    if not userid:
+        userid = str(msg.from_user.id)
+    try:
+        session = await database.create_session()  # AsyncSession
+        user = await session.execute(select(User).filter_by(user_id=userid))
+        user = user.scalars().first()
+        arr = pickle.loads(user.arr_of_ids)
 
-    if user.last_user_id:
-        reaction = msg.text
-        if reaction == '🩷':
-            # user = await session.execute(select(User).filter_by(user_id=str(msg.from_user.id)))
-            user_liked = await session.execute(select(User).filter_by(id=user.last_user_id))
-            user_liked = user_liked.scalar().first()
-            await msg.bot.send_message(chat_id=user_liked.user_id, text=f'Вас лайкнул @{user.username}')
-    if arr:
-        another_user = session.query(User).get(arr[0])
+        if user.last_user_id and arr:
+            reaction = msg.text
+            if reaction == '🩷':
+                await msg.bot.send_message(chat_id=user.last_user_id, text=f'`x Вас лайкнул @{user.username}')
 
+
+
+        another_user = await session.execute(select(User).filter_by(user_id=arr[0]))
+        another_user = another_user.scalars().first()
         if another_user:
+            km = haversine_distance(user.coord_x, user.coord_y, another_user.coord_x, another_user.coord_y)
+            if km < 1:
+                km = f'{round(km * 1000)} м'
+            else:
+                km = f'{round(km, 1)} км'
+            premium = '🟢Premium-пользователь🟢\n' if another_user.premium else ''
             arr_of_photos = [InputMediaPhoto(media=another_user.photos.split()[0], caption=
+            f'{premium}'
             f'Имя: {another_user.name}\n'
             f'Возраст: {another_user.age}\n'
-            f'Рост: {another_user.height}\n'
+            f'Рост: {another_user.height}см\n'
+            f'Расстояние от вас: {km}\n'
             f'{another_user.mainText}')]
             for i in another_user.photos.split()[1:]:
                 arr_of_photos.append(InputMediaPhoto(media=str(i)))
-            await msg.answer('<b> Загружаем профили... </b>', reply_markup=like_or_not_kb())
-            await msg.answer_media_group(media=arr_of_photos)
-            await state.set_state(Settings.find_profiles)
         user.last_user_id = arr[0]
-        if len(arr):
+        if len(arr) > 1:
             arr = arr[1:]
         else:
             arr = []
-        user.arr_of_ids = bytes(arr)
+        user.arr_of_ids = pickle.dumps(arr)
+
+        await msg.answer_media_group(media=arr_of_photos)
+        await state.set_state(Settings.find_profiles)
         await session.commit()
-    else:
-        await get_users_by_distance(msg.from_user.id)
-        await find_profiles(msg, state)
+        await session.close()
+    except Exception as err:
+        await get_users_by_distance(userid)
+        await state.set_state(Settings.find_profiles)
+        await find_profiles_message(msg, state, userid)
 
 
-async def get_users_by_distance(userid: int):
+
+async def get_users_by_distance(userid):
     session = await database.create_session()
     user = await session.execute(select(User).filter_by(user_id=userid))
     user = user.scalars().first()
     lat1, lon1 = user.coord_x, user.coord_y
 
-    users = session.query(User).filter(and_(User.find_gender == user.gender, User.gender == user.find_gender,
-                                            User.user_id != user.user_id)).limit(500).all()
+    users = await session.execute(
+        select(User).filter(and_(User.find_gender == user.gender, User.gender == user.find_gender,
+                                 User.user_id != user.user_id)))
+    users = users.scalars().all()
     users = sorted(users, key=lambda x: haversine_distance(x.coord_x, x.coord_y, lat1, lon1))
-    user.arr_of_ids = bytes([user.id for user in users])
-    await session.commit()
+    array = [user.user_id for user in users]
+    if len(array) > 500:
+        array = array[:500]
 
+    user.arr_of_ids = pickle.dumps(array)
+
+    await session.commit()
+    await session.close()
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):

@@ -12,7 +12,6 @@ from utils.help_functions import show_user_profile
 from geopy.geocoders import Nominatim
 from geopy.adapters import AioHTTPAdapter
 from sqlalchemy import select
-from .base_commands import start
 
 change_parameters_router = Router(name=__name__)
 
@@ -24,7 +23,6 @@ async def change_menu(query: CallbackQuery, state: FSMContext):
     if not any([text == i[1] for i in show_profile_kb_button]):
         await query.message.answer('<i> Выберите один из предложенных вариантов ответа </i>')
     else:
-
         if text == 'change_name':
             await query.message.edit_text('<b> Введите новое имя для вашего профиля </b>')
             await state.set_state(ChangeSettings.name)
@@ -59,11 +57,11 @@ async def change_menu(query: CallbackQuery, state: FSMContext):
             db_session = await database.create_session()  # AsyncSession
             user = await db_session.execute(select(User).filter_by(user_id=str(query.message.from_user.id)))
             user = user.scalars().first()
+            await db_session.close()
             await query.message.answer('<b> Выберите язык </b>', reply_markup=langs_kb())
             await state.set_state(Settings.lang)
 
 
-# @change_parameters_router.callback_query(C_B.filter(F.part == 'change_name'))
 @change_parameters_router.message(ChangeSettings.name)
 async def change_name(msg: Message, state: FSMContext):
     try:
@@ -89,7 +87,6 @@ async def change_name(msg: Message, state: FSMContext):
         await state.set_state(ChangeSettings.name)
 
 
-# @change_parameters_router.callback_query(C_B.filter(F.part == 'change_age'))
 @change_parameters_router.message(ChangeSettings.age)
 async def change_age(msg: Message, state: FSMContext):
     try:
@@ -111,7 +108,6 @@ async def change_age(msg: Message, state: FSMContext):
         await state.set_state(ChangeSettings.age)
 
 
-# @change_parameters_router.callback_query(C_B.filter(F.part == 'change_height'))
 @change_parameters_router.message(ChangeSettings.height)
 async def change_height(msg: Message, state: FSMContext):
     try:
@@ -127,6 +123,7 @@ async def change_height(msg: Message, state: FSMContext):
             await msg.answer('<b> Рост успешно обновлен! </b>')
             await show_user_profile(msg, state)
         else:
+            await db_session.close()
             await msg.answer('<i> Введите рост <u>от 100 до 250 см</u> </i>')
             await state.set_state(ChangeSettings.height)
 
@@ -135,7 +132,6 @@ async def change_height(msg: Message, state: FSMContext):
         await state.set_state(ChangeSettings.height)
 
 
-# @change_parameters_router.callback_query(C_B.filter(F.part == 'change_coords'))
 @change_parameters_router.message(ChangeSettings.coords)
 async def change_coords(msg: Message, state: FSMContext):
     try:
@@ -158,7 +154,6 @@ async def change_coords(msg: Message, state: FSMContext):
         await state.set_state(ChangeSettings.coords)
 
 
-# @change_parameters_router.callback_query(C_B.filter(F.part == 'change_main_text'))
 @change_parameters_router.message(ChangeSettings.text_of_anketa)
 async def change_main_text(msg: Message, state: FSMContext):
     try:
@@ -177,6 +172,7 @@ async def change_main_text(msg: Message, state: FSMContext):
             await msg.answer('<b> Текст анкеты успешно обновлен! </b>')
             await show_user_profile(msg, state)
         else:
+            await db_session.close()
             if 0 < lenn < 3:
                 await msg.answer('<i> Текст анкеты слишком короткий </i>')
             elif lenn > 600:
@@ -187,7 +183,6 @@ async def change_main_text(msg: Message, state: FSMContext):
         await state.set_state(ChangeSettings.text_of_anketa)
 
 
-# @change_parameters_router.callback_query(C_B.filter(F.part == 'change_photos'))
 @change_parameters_router.message(ChangeSettings.clear_photo)
 async def ask_before_photos(msg: Message, state: FSMContext):
     try:
@@ -198,7 +193,7 @@ async def ask_before_photos(msg: Message, state: FSMContext):
             user = user.scalars().first()
             user.photos = ''
             await db_session.commit()
-            # await db_session.close()
+            await db_session.close()
         await msg.answer('<b> Пришлите свои фотографии (до 5, присылайте по одной фотографии за раз) </b>',
                          reply_markup=photos_kb())
         await state.set_state(ChangeSettings.photo)
@@ -234,11 +229,12 @@ async def change_photos(msg: Message, state: FSMContext):
                                  reply_markup=photos_kb())
                 await state.set_state(ChangeSettings.photo)
         elif msg.text in photos_kb_button:
+            await db_session.close()
             if user.photos:
                 await msg.answer('<b> Отлично! Фотографии сохранены </b>')
                 await show_user_profile(msg, state)
             else:
-                await msg.answer('<b> Ваша анкета не может содержать <i>ни одной</i> фотографии </b>')
+                await msg.answer('<b> Ваш профиль не может содержать <i>ни одной</i> фотографии </b>')
                 await state.set_state(ChangeSettings.photo)
     except Exception as err:
         await msg.answer('<b> Пришлите фотографию </b>')

@@ -54,22 +54,8 @@ async def find_who_end(msg: Message, state: FSMContext):
                 user.find_gender = 'f'
             else:
                 user.find_gender = 'n'
-
-            # arr = [InputMediaPhoto(media=user.photos.split()[0], caption=
-            # f'Имя: {user.name}\n'
-            # f'Возраст: {user.age}\n'
-            # f'Рост: {user.height}\n'
-            # f'{user.mainText}')]
-            # for i in user.photos.split()[1:]:
-            #     arr.append(InputMediaPhoto(media=str(i)))
             await show_user_profile(msg, state)
             await session.commit()
-            await session.close()
-
-            # await msg.answer('<b> Так выглядит ваша анкета: </b>')
-            # await msg.answer_media_group(media=arr)
-            # await msg.answer('<b>Выберите действие: </b>', reply_markup=main_menu_anketa_kb())
-
             await state.clear()
         else:
             await msg.answer('<i> Такого варианта ответа не существует </i>')
@@ -77,3 +63,5 @@ async def find_who_end(msg: Message, state: FSMContext):
     except Exception as err:
         await msg.answer('<b> Выберите один из предложенных вариантов ответа </b>')
         await state.set_state(Settings.find_who)
+    finally:
+        await session.close()

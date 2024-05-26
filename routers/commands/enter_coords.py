@@ -17,7 +17,6 @@ coords_photo_router = Router(name=__name__)
 async def coords_photo(msg: Message, state: FSMContext):
     try:
         if msg.location:
-
             session = await database.create_session()  # AsyncSession
             user = await session.execute(select(User).filter_by(user_id=str(msg.from_user.id)))
             user = user.scalars().first()
@@ -43,6 +42,7 @@ async def coords_photo(msg: Message, state: FSMContext):
                                 user.city = 'none'
             user.photos = ''
             await session.commit()
+            await session.close()
             await msg.answer('<b> Пришлите свои фотографии (до 5, присылайте по одной фотографии за раз) </b>',
                              reply_markup=photos_kb())
             await state.set_state(Settings.photo)

@@ -23,7 +23,7 @@ async def show_user_profile(msg: Message, state: FSMContext):
         f'{main_text}')]
         for i in photos.split()[1:]:
             arr.append(InputMediaPhoto(media=str(i)))
-        await msg.answer('<b> Так выглядит ваша анкета: </b>', reply_markup=ReplyKeyboardRemove())
+        await msg.answer('<b> Так выглядит ваш профиль: </b>', reply_markup=ReplyKeyboardRemove())
         await msg.answer_media_group(media=arr)
 
         if premium_str:
