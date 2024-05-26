@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from .buttons import langs_kb_buttons, who_kb_buttons, find_who_kb_buttons, photos_kb_button, location_kb_button, \
     text_of_anketa_button, main_menu_kb_button, show_profile_kb_button, photos_del_or_not_kb_button, \
-    like_or_not_kb_button, main_menu_kb_button_premium, premium_types_kb_buttons
+    like_or_not_kb_button, main_menu_kb_button_premium, premium_types_kb_buttons, like_or_not_kb_button_premium
 from data.change_profile_user import ChangeProfileCallback
 from commands_inline_user import PremiumInline
 
@@ -91,10 +91,17 @@ def like_or_not_kb():
     return builder.as_markup(resize_keyboard=True)
 
 
+def like_or_not_premium_kb():
+    builder = ReplyKeyboardBuilder()
+    for text in like_or_not_kb_button_premium:
+        builder.button(text=text)
+    builder.adjust(3)
+    return builder.as_markup(resize_keyboard=True)
+
+
 def premium_types_kb():
     builder = InlineKeyboardBuilder()
     for text, callback in premium_types_kb_buttons:
         builder.button(text=text, callback_data=PremiumInline(days=callback).pack())
     builder.adjust(1)
     return builder.as_markup()
-

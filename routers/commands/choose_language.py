@@ -9,14 +9,13 @@ from utils.keyboards import langs_kb
 
 from sqlalchemy import select
 
-# from db_work import get_user_by_id
 from data import database
+
 lang_name_router = Router(name=__name__)
 
 
 @lang_name_router.message(Settings.lang)
 async def lang_name(msg: Message, state: FSMContext):
-    # Settings.user = User()
     session = await database.create_session()  # AsyncSession
     user = await session.execute(select(User).filter_by(user_id=str(msg.from_user.id)))
     user = user.scalars().first()
@@ -34,3 +33,6 @@ async def lang_name(msg: Message, state: FSMContext):
     except Exception as err:
         await msg.answer('<i> Выберите язык из <u>предложенных вариантов</u> </i>', reply_markup=langs_kb())
         await state.set_state(Settings.lang)
+
+    finally:
+        await session.close()
