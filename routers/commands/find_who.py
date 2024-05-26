@@ -25,10 +25,9 @@ async def who_find_who(msg: Message, state: FSMContext):
         if text in who_kb_buttons:
             if 'Парень' in text:
                 user.gender = 'm'
-            elif 'Девушка' in text:
-                user.gender = 'f'
             else:
-                user.gender = 'n'
+            # elif 'Девушка' in text:
+                user.gender = 'f'
             await session.commit()
             await msg.answer('<b> Кого вы хотите найти? </b>', reply_markup=find_who_kb())
             await state.set_state(Settings.find_who)
@@ -50,10 +49,9 @@ async def find_who_end(msg: Message, state: FSMContext):
         if text in find_who_kb_buttons:
             if 'Парня' in text:
                 user.find_gender = 'm'
-            elif 'Девушку' in text:
-                user.find_gender = 'f'
             else:
-                user.find_gender = 'n'
+            # elif 'Девушку' in text:
+                user.find_gender = 'f'
             await show_user_profile(msg, state)
             await session.commit()
             await state.clear()
