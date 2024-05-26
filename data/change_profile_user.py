@@ -13,6 +13,8 @@ class ChangeSettings(StatesGroup):
     text_of_anketa = State()
     who = State()
     find_who = State()
+    find_profiles = State()
+    letter_msg = State()
 
 
 class ChangeProfileCallback(CallbackData, prefix='change'):

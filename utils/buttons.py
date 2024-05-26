@@ -23,4 +23,4 @@ show_profile_kb_button = [['😊Имя😊', 'change_name'], ['⏳Возраст
 photos_del_or_not_kb_button = ['Да👌🏻', 'Нет⛔']
 
 like_or_not_kb_button = ['🩷', '🤮']
-like_or_not_kb_button_premium = ['🩷', '💌' ,'🤮', '❤️‍🔥', '🔙', '🏠']
+like_or_not_kb_button_premium = ['🩷', '💌' ,'🤮', '❤️‍🔥', '⏪', '🏠']
