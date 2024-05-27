@@ -8,8 +8,9 @@ import logging
 import datetime
 from bot import bot
 from utils.help_functions import show_user_profile
-from utils.keyboards import premium_types_kb
+from utils.keyboards import premium_types_kb, main_menu_anketa_kb_premium, main_menu_anketa_kb
 from commands_inline_user import PremiumInline
+from data.database import create_session
 
 premium_router = Router(name=__name__)
 
@@ -17,30 +18,46 @@ premium_router = Router(name=__name__)
 @premium_router.callback_query(F.data == 'get_premium')
 async def choose_premium(query: CallbackQuery, state: FSMContext):
     await state.clear()
-    await query.message.answer('<b>Выберите длительность подписки:</b>', reply_markup=premium_types_kb())
-
+    session = await create_session()
+    user = await session.execute(select(User).filter_by(user_id=str(query.message.chat.id)))
+    user = user.scalars().first()
+    if user.premium:
+        await query.message.edit_text(f'<b>Вам доступен Premium до {user.end_premium}\n'
+                                      'Выберите длительность подписки:</b>', reply_markup=premium_types_kb())
+    else:
+        await query.message.edit_text('<b>Выберите длительность подписки:</b>', reply_markup=premium_types_kb())
 
 @premium_router.callback_query(PremiumInline.filter())
 async def premium(query: CallbackQuery, state: FSMContext):
     await state.clear()
     number = query.data.split(':')[1]
-    if number == '30':
-        amount = 299 * 100
-    elif number == '60':
-        amount = 599 * 100
-    elif number == '90':
-        amount = 1299 * 100
+    if number == 'come_home':
+        session = await database.create_session()
+        user = await session.execute(select(User).filter_by(user_id=str(query.message.chat.id)))
+        user = user.scalars().first()
+        if user.premium:
+            await query.message.edit_text('<b> Выберите действие: </b>', reply_markup=main_menu_anketa_kb_premium())
+        else:
+            await query.message.edit_text('<b> Выберите действие: </b>', reply_markup=main_menu_anketa_kb())
+        await state.clear()
     else:
-        amount = 1999 * 100
+        if number == '30':
+            amount = 299 * 100
+        elif number == '60':
+            amount = 599 * 100
+        elif number == '90':
+            amount = 1299 * 100
+        else:
+            amount = 1999 * 100
 
-    await query.message.answer_invoice(
-        title='✨Greeny premium✨',
-        description='🟢Premium-Подписка🟢',
-        payload='premium_invoice_payload',
-        provider_token='1744374395:TEST:2927d276fa3aae2fcd47',
-        currency='RUB',
-        prices=[LabeledPrice(label=f'✨{number} дней Greeny premium✨', amount=amount)]
-    )
+        await query.message.answer_invoice(
+            title='✨Greeny premium✨',
+            description=f'🟢Premium-Подписка на {number} дней🟢',
+            payload='premium_invoice_payload',
+            provider_token='1744374395:TEST:2927d276fa3aae2fcd47',
+            currency='RUB',
+            prices=[LabeledPrice(label=f'✨{number} дней Greeny Premium✨', amount=amount)]
+        )
 
 
 @premium_router.pre_checkout_query()

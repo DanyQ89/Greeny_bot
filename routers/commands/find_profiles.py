@@ -104,10 +104,22 @@ async def get_users_by_distance(userid):
     user = await session.execute(select(User).filter_by(user_id=userid))
     user = user.scalars().first()
     lat1, lon1 = user.coord_x, user.coord_y
+    if user.premium:
+        users = await session.execute(select(User).filter(and_(
+            User.user_id != user.user_id,
+            User.find_gender == user.gender,
+            User.gender == user.find_gender,
+            user.minAge <= User.age <= user.maxAge,
+            user.minHeight <= User.height <= user.maxHeight
+        )))
+    else:
+        users = await session.execute(select(User).filter(and_(
+            User.user_id != user.user_id,
+            User.find_gender == user.gender,
+            User.gender == user.find_gender,
+            user.age - 2 <= User.age <= user.age + 2
+        )))
 
-    users = await session.execute(
-        select(User).filter(and_(User.find_gender == user.gender, User.gender == user.find_gender,
-                                 User.user_id != user.user_id)))
     users = users.scalars().all()
     users = sorted(users, key=lambda x: haversine_distance(x.coord_x, x.coord_y, lat1, lon1))
     array = [user.user_id for user in users]

@@ -4,7 +4,8 @@ from aiogram.types import CallbackQuery, Message
 from data import database
 from data.user_form import User
 from settings_user import Settings
-from utils.keyboards import location_kb, text_of_anketa_kb, photos_kb, yes_or_no_photos_kb, langs_kb
+from utils.keyboards import (location_kb, text_of_anketa_kb, photos_kb, yes_or_no_photos_kb, langs_kb,
+                             main_menu_anketa_kb, main_menu_anketa_kb_premium)
 from utils.buttons import text_of_anketa_button, photos_kb_button, show_profile_kb_button
 from data.change_profile_user import ChangeProfileCallback as C_B
 from data.change_profile_user import ChangeSettings
@@ -54,12 +55,20 @@ async def change_menu(query: CallbackQuery, state: FSMContext):
 
         elif text == 'change_all':
             await query.message.delete()
-            db_session = await database.create_session()  # AsyncSession
-            user = await db_session.execute(select(User).filter_by(user_id=str(query.message.from_user.id)))
-            user = user.scalars().first()
-            await db_session.close()
             await query.message.answer('<b> Выберите язык </b>', reply_markup=langs_kb())
             await state.set_state(Settings.lang)
+        elif text == 'come_home':
+            db_session = await database.create_session()  # AsyncSession
+            user = await db_session.execute(select(User).filter_by(user_id=str(query.message.chat.id)))
+            user = user.scalars().first()
+            if user.premium:
+                await query.message.edit_text('<b> Выберите действие: </b>',
+                                              reply_markup=main_menu_anketa_kb_premium())
+            else:
+                await query.message.edit_text('<b> Выберите действие: </b>',
+                                              reply_markup=main_menu_anketa_kb())
+            await db_session.close()
+            await state.clear()
 
 
 @change_parameters_router.message(ChangeSettings.name)

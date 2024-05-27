@@ -1,10 +1,12 @@
 from aiogram.types import ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-from .buttons import langs_kb_buttons, who_kb_buttons, find_who_kb_buttons, photos_kb_button, location_kb_button, \
-    text_of_anketa_button, main_menu_kb_button, show_profile_kb_button, photos_del_or_not_kb_button, \
-    like_or_not_kb_button, main_menu_kb_button_premium, premium_types_kb_buttons, like_or_not_kb_button_premium
+from .buttons import (langs_kb_buttons, who_kb_buttons, find_who_kb_buttons, photos_kb_button, location_kb_button, \
+                     text_of_anketa_button, main_menu_kb_button, show_profile_kb_button, photos_del_or_not_kb_button, \
+                     like_or_not_kb_button, main_menu_kb_button_premium, premium_types_kb_buttons,
+                     like_or_not_kb_button_premium,
+                     premium_settings_kb_button)
 from data.change_profile_user import ChangeProfileCallback
-from commands_inline_user import PremiumInline
+from commands_inline_user import PremiumInline, PremiumSettings
 
 
 def langs_kb() -> ReplyKeyboardMarkup:
@@ -105,3 +107,11 @@ def premium_types_kb():
         builder.button(text=text, callback_data=PremiumInline(days=callback).pack())
     builder.adjust(1)
     return builder.as_markup()
+
+def premium_settings_kb():
+    builder = InlineKeyboardBuilder()
+    for text, callback in premium_settings_kb_button:
+        builder.button(text=text, callback_data=PremiumSettings(settings=callback).pack())
+    builder.adjust(1)
+    return builder.as_markup()
+

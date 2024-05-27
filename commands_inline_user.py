@@ -7,4 +7,7 @@ class CommandsInline(StatesGroup):
 
 
 class PremiumInline(CallbackData, prefix='buy_premium'):
-    days: int
+    days: str
+
+class PremiumSettings(CallbackData, prefix='premium_settings'):
+    settings: str
