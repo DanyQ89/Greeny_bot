@@ -13,6 +13,7 @@ from .base_commands import start
 
 find_profiles_router = Router(name=__name__)
 
+
 @find_profiles_router.callback_query(F.data == 'find_profiles')
 async def before_f_p(query: CallbackQuery, state: FSMContext):
     await state.set_state(Settings.find_profiles)
@@ -38,38 +39,60 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
         user = user.scalars().first()
         arr = pickle.loads(user.arr_of_ids)
         meow = None
-
-        if user.last_user_id and arr:
-            reaction = msg.text
-            if reaction == '🩷':
-                await msg.answer('meow 🩷')
-            elif reaction == '💌':
-                await msg.answer('<b> Напишите сообщение пользователю: </b>')
-                await state.set_state(Settings.letter_msg)
-                await like_w_letter(msg, state, userid, user.last_user_id)
-            elif reaction == '🤮':
-                meow = True
-            elif reaction == '❤️‍🔥':
-                await msg.answer('<b> Сообщение отправлено <b/>')
-                await send_user_profile(msg, state, userid, user.last_user_id)
-            elif reaction == '⏪':
-                arr.insert(0, user.last_user_id)
-            elif reaction == '🏠':
-                await start(msg, state)
-
-        user.last_user_id = arr[0]
-
-
-        if len(arr) > 1:
-            arr = arr[1:]
+        check = True if (user.last_user_id and arr) else False
+        reaction = msg.text
+        if check and reaction == '🏠':
+            await start(msg, state)
+            await state.clear()
         else:
-            arr = []
-        user.arr_of_ids = pickle.dumps(arr)
+            if check:
+                if user.premium:
+                    if reaction == '🩷':
+                        await msg.answer('meow 🩷')
+                    # elif reaction == '💌':
+                    #     await msg.answer('<b> Напишите сообщение пользователю: </b>')
+                    #     await state.set_state(Settings.letter_msg)
+                    #     await like_w_letter(msg, state, userid, user.last_user_id)
+                    elif reaction == '🤮':
+                        meow = True
+                    elif reaction == '❤️‍🔥':
+                        liked_user = await session.execute(select(User).filter_by(user_id=user.last_user_id))
+                        liked_user = liked_user.scalars().first()
+                        like = 'понравился' if user.find_gender == 'm' else 'понравилась'
+                        await msg.answer('<b> Вы активировали функцию Premium-лайка\n'
+                                         f'Вам {like} @{liked_user.username}<b/>')
+                        print(1)
+                        await send_user_profile(msg, state, userid, user.last_user_id)
+                    elif reaction == '⏪':
+                        arr.insert(0, user.last_user_id)
+                    elif reaction == '🏠':
+                        await start(msg, state)
+                        await state.clear()
+                else:
+                    if reaction == '🩷':
+                        await msg.answer('meow 🩷')
+                    # elif reaction == '💌':
+                    #     await msg.answer('<b> Напишите сообщение пользователю: </b>')
+                    #     await state.set_state(Settings.letter_msg)
+                    #     await like_w_letter(msg, state, userid, user.last_user_id)
+                    elif reaction == '🤮':
+                        meow = True
+                    # elif reaction == '🏠':
+                    #     await start(msg, state)
+                    #     await state.clear()
 
-        await show_user_for_finding(msg, state, str(user.last_user_id), user.coord_x, user.coord_y)
+            user.last_user_id = arr[0]
+            print(arr)
+            if len(arr) > 1:
+                arr = arr[1:]
+            else:
+                arr = []
+            user.arr_of_ids = pickle.dumps(arr)
 
-        await session.commit()
-        await session.close()
+            await session.commit()
+            await show_user_for_finding(msg, state, str(user.last_user_id), user.coord_x, user.coord_y)
+            await session.close()
+
 
     except Exception as err:
         await get_users_by_distance(userid)
@@ -104,21 +127,16 @@ async def get_users_by_distance(userid):
     user = await session.execute(select(User).filter_by(user_id=userid))
     user = user.scalars().first()
     lat1, lon1 = user.coord_x, user.coord_y
-    if user.premium:
-        users = await session.execute(select(User).filter(and_(
-            User.user_id != user.user_id,
-            User.find_gender == user.gender,
-            User.gender == user.find_gender,
-            user.minAge <= User.age <= user.maxAge,
-            user.minHeight <= User.height <= user.maxHeight
-        )))
-    else:
-        users = await session.execute(select(User).filter(and_(
-            User.user_id != user.user_id,
-            User.find_gender == user.gender,
-            User.gender == user.find_gender,
-            user.age - 2 <= User.age <= user.age + 2
-        )))
+
+    users = await session.execute(select(User).filter(and_(
+        User.user_id != user.user_id,
+        User.find_gender == user.gender,
+        User.gender == user.find_gender,
+        user.minAge <= User.age,
+        User.age <= user.maxAge,
+        user.minHeight <= User.height,
+        User.height <= user.maxHeight
+    )))
 
     users = users.scalars().all()
     users = sorted(users, key=lambda x: haversine_distance(x.coord_x, x.coord_y, lat1, lon1))
@@ -130,5 +148,3 @@ async def get_users_by_distance(userid):
 
     await session.commit()
     await session.close()
-
-

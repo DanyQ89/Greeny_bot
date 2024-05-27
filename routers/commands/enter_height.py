@@ -19,6 +19,8 @@ async def height_coords(msg: Message, state: FSMContext):
     try:
         if msg.text.isdigit() and 99 < int(msg.text) < 251:
             user.height = int(msg.text)
+            user.minHeight = 100
+            user.maxHeight = 250
             await session.commit()
             await session.close()
             await msg.answer('<b> Укажите ваши координаты </b>', reply_markup=location_kb())

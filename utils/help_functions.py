@@ -107,5 +107,5 @@ async def send_user_profile(msg: Message, state: FSMContext, userid, chatid):
         f'{main_text}')]
         for i in photos.split()[1:]:
             arr.append(InputMediaPhoto(media=str(i)))
-        await msg.bot.send_media_group(chat_id=chatid, media=arr)
-        await msg.bot.send_message(chat_id=chatid, text=f'Вы понравились Premium-пользователю @{user.username}')
+        await msg.bot.send_media_group(chat_id=str(to_user.user_id), media=arr)
+        await msg.bot.send_message(chat_id=str(to_user.user_id), text=f'Вы понравились Premium-пользователю @{user.username}')
