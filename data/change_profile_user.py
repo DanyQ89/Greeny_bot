@@ -16,7 +16,7 @@ class ChangeSettings(StatesGroup):
     find_who = State()
     find_profiles = State()
     letter_msg = State()
-
+    check_like = State()
 
 class ChangeProfileCallback(CallbackData, prefix='change'):
     part: str

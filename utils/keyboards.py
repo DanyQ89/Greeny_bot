@@ -1,10 +1,11 @@
 from aiogram.types import ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-from .buttons import (langs_kb_buttons, who_kb_buttons, find_who_kb_buttons, photos_kb_button, location_kb_button, \
-                     text_of_anketa_button, main_menu_kb_button, show_profile_kb_button, photos_del_or_not_kb_button, \
-                     like_or_not_kb_button, main_menu_kb_button_premium, premium_types_kb_buttons,
-                     like_or_not_kb_button_premium,
-                     premium_settings_kb_button)
+# from .buttons import (langs_kb_buttons, who_kb_buttons, find_who_kb_buttons, photos_kb_button, location_kb_button, \
+#                      text_of_anketa_button, main_menu_kb_button, show_profile_kb_button, photos_del_or_not_kb_button, \
+#                      like_or_not_kb_button, main_menu_kb_button_premium, premium_types_kb_buttons,
+#                      like_or_not_kb_button_premium,
+#                      premium_settings_kb_button, main_menu_kb_button_w_likes, main_menu_kb_button_premium_w_likes)
+from .buttons import *
 from data.change_profile_user import ChangeProfileCallback
 from commands_inline_user import PremiumInline, PremiumSettings
 
@@ -69,6 +70,22 @@ def main_menu_anketa_kb_premium():
     return builder.as_markup()
 
 
+def main_menu_anketa_kb_w_likes():
+    builder = InlineKeyboardBuilder()
+    for text, callback in main_menu_kb_button_w_likes:
+        builder.button(text=text, callback_data=callback)
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def main_menu_anketa_kb_premium_w_likes():
+    builder = InlineKeyboardBuilder()
+    for text, callback in main_menu_kb_button_premium_w_likes:
+        builder.button(text=text, callback_data=callback)
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 def change_parameters_kb():
     builder = InlineKeyboardBuilder()
     for text, callback in show_profile_kb_button:
@@ -108,6 +125,7 @@ def premium_types_kb():
     builder.adjust(1)
     return builder.as_markup()
 
+
 def premium_settings_kb():
     builder = InlineKeyboardBuilder()
     for text, callback in premium_settings_kb_button:
@@ -115,3 +133,24 @@ def premium_settings_kb():
     builder.adjust(1)
     return builder.as_markup()
 
+
+def check_likes_kb():
+    builder = ReplyKeyboardBuilder()
+    for text in check_likes_kb_button:
+        builder.button(text=text)
+    builder.adjust(3)
+    return builder.as_markup(resize_keyboard=True)
+
+def check_likes_final_kb():
+    builder = InlineKeyboardBuilder()
+    for text, callback in check_likes_kb_final_button:
+        builder.button(text=text, callback_data=callback)
+    builder.adjust(1)
+    return builder.as_markup()
+
+def go_home_kb():
+    builder = InlineKeyboardBuilder()
+    for text, callback in go_home_kb_button:
+        builder.button(text=text, callback_data=callback)
+    builder.adjust(1)
+    return builder.as_markup()

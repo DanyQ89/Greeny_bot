@@ -21,7 +21,12 @@ async def before_f_p(query: CallbackQuery, state: FSMContext):
     session = await database.create_session()
     user = await session.execute(select(User).filter_by(user_id=user_id))
     user = user.scalars().first()
-    if not user.premium:
+    user.last_user_id = ''
+    user.last_last_user_id = ''
+    premium = user.premium
+    await session.commit()
+    await session.close()
+    if not premium:
         await query.message.answer('<b> Загружаем профили... </b>', reply_markup=like_or_not_kb())
     else:
         await query.message.answer('<b> Загружаем профили... </b>', reply_markup=like_or_not_premium_kb())
@@ -37,17 +42,39 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
         session = await database.create_session()  # AsyncSession
         user = await session.execute(select(User).filter_by(user_id=userid))
         user = user.scalars().first()
+        #
+        #
+        #
         arr = pickle.loads(user.arr_of_ids)
+        #
+        #
+        #
         meow = None
         check = True if (user.last_user_id and arr) else False
         reaction = msg.text
-        if check and reaction == '🏠':
+        print(arr)
+        if check and (reaction == '🏠'):
             await start(msg, state)
             await state.clear()
+        # elif check or reaction != 'Выберите действие:':
         else:
             if check:
                 if user.premium:
                     if reaction == '🩷':
+                        liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
+                        liked_user = liked_user.scalars().first()
+                        #
+                        #
+                        #
+                        arr_liked = pickle.loads(liked_user.arr_of_liked_ids)
+                        print(1)
+                        arr_liked.append(str(user.user_id))
+                        print(2)
+                        liked_user.arr_of_liked_ids = pickle.dumps(arr_liked)
+
+                        #
+                        #
+                        #
                         await msg.answer('meow 🩷')
                     # elif reaction == '💌':
                     #     await msg.answer('<b> Напишите сообщение пользователю: </b>')
@@ -56,20 +83,37 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                     elif reaction == '🤮':
                         meow = True
                     elif reaction == '❤️‍🔥':
-                        liked_user = await session.execute(select(User).filter_by(user_id=user.last_user_id))
+                        liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
                         liked_user = liked_user.scalars().first()
-                        like = 'понравился' if user.find_gender == 'm' else 'понравилась'
+                        like = 'понравился' if (user.find_gender == 'm') else 'понравилась'
                         await msg.answer('<b> Вы активировали функцию Premium-лайка\n'
-                                         f'Вам {like} @{liked_user.username}<b/>')
-                        print(1)
-                        await send_user_profile(msg, state, userid, user.last_user_id)
+                                         f'Вам {like} @{liked_user.username}</b>')
+                        await send_user_profile(msg, state, userid, str(user.last_user_id))
                     elif reaction == '⏪':
-                        arr.insert(0, user.last_user_id)
-                    elif reaction == '🏠':
-                        await start(msg, state)
-                        await state.clear()
+                        if user.last_last_user_id:
+                            arr.insert(0, user.last_user_id)
+                            arr.insert(0, user.last_last_user_id)
+                        else:
+                            await msg.answer('<i> Вы не можете вернуть профиль назад, не пропустив его</i>')
                 else:
                     if reaction == '🩷':
+                        liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
+                        liked_user = liked_user.scalars().first()
+                        #
+                        #
+                        #
+                        if not liked_user.arr_of_liked_ids:
+                            arr_liked = []
+                        else:
+                            arr_liked = pickle.loads(liked_user.arr_of_liked_ids)
+                        print(1)
+                        arr_liked.append(str(user.user_id))
+                        print(2)
+                        liked_user.arr_of_liked_ids = pickle.dumps(arr_liked)
+
+                        #
+                        #
+                        #
                         await msg.answer('meow 🩷')
                     # elif reaction == '💌':
                     #     await msg.answer('<b> Напишите сообщение пользователю: </b>')
@@ -77,22 +121,23 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                     #     await like_w_letter(msg, state, userid, user.last_user_id)
                     elif reaction == '🤮':
                         meow = True
-                    # elif reaction == '🏠':
-                    #     await start(msg, state)
-                    #     await state.clear()
-
+            user.last_last_user_id = user.last_user_id
             user.last_user_id = arr[0]
-            print(arr)
             if len(arr) > 1:
                 arr = arr[1:]
             else:
                 arr = []
+            #
+            #
+            #
             user.arr_of_ids = pickle.dumps(arr)
+            #
+            #
+            #
 
-            await session.commit()
             await show_user_for_finding(msg, state, str(user.last_user_id), user.coord_x, user.coord_y)
+            await session.commit()
             await session.close()
-
 
     except Exception as err:
         await get_users_by_distance(userid)
