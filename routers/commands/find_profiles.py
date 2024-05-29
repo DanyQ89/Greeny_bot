@@ -49,7 +49,7 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
         #
         #
         #
-        meow = None
+        meow = False
         check = True if (user.last_user_id and arr) else False
         reaction = msg.text
         print(arr)
@@ -61,15 +61,19 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
             if check:
                 if user.premium:
                     if reaction == '🩷':
+                        print("why")
                         liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
                         liked_user = liked_user.scalars().first()
+                        print("MEOW")
                         #
                         #
                         #
-                        arr_liked = pickle.loads(liked_user.arr_of_liked_ids)
-                        print(1)
+                        arr_liked = []
+                        if liked_user.arr_of_liked_ids:
+                            arr_liked = pickle.loads(liked_user.arr_of_liked_ids)
+                        print(11)
                         arr_liked.append(str(user.user_id))
-                        print(2)
+                        print(22)
                         liked_user.arr_of_liked_ids = pickle.dumps(arr_liked)
 
                         #
@@ -102,9 +106,8 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                         #
                         #
                         #
-                        if not liked_user.arr_of_liked_ids:
-                            arr_liked = []
-                        else:
+                        arr_liked = []
+                        if liked_user.arr_of_liked_ids:
                             arr_liked = pickle.loads(liked_user.arr_of_liked_ids)
                         print(1)
                         arr_liked.append(str(user.user_id))
@@ -134,13 +137,16 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
             #
             #
             #
-
+            print(100)
             await show_user_for_finding(msg, state, str(user.last_user_id), user.coord_x, user.coord_y)
             await session.commit()
             await session.close()
+            print("No error")
 
     except Exception as err:
+        print("[ERROR]", err)
         await get_users_by_distance(userid)
+        print("I love niggers")
         await state.set_state(Settings.find_profiles)
         await find_profiles_message(msg, state, userid)
 

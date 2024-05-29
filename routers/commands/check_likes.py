@@ -50,6 +50,48 @@ async def checking_likes(query: CallbackQuery, state: FSMContext):
     await do_the_deal(query.message, state, True)
 
 
+@check_likes_router.callback_query(F.data == 'come_home')
+async def go_home(query: CallbackQuery, state: FSMContext):
+    print("here")
+    db_session = await database.create_session()  # AsyncSession
+    user = await db_session.execute(select(User).filter_by(user_id=str(query.from_user.id)))
+    user = user.scalars().first()
+
+    try:
+        if user:
+            name, age, height, photos, main_text, city = user.name, user.age, user.height, user.photos, user.mainText, user.city
+            premium_str = '🟢Premium-пользователь🟢\n' if user.premium else ''
+            arr = [InputMediaPhoto(media=photos.split()[0], caption=
+            f"{premium_str}"
+            f'Имя: {name}\n'
+            f'Возраст: {age}\n'
+            f'Рост: {height}\n'
+            f'Город: {city}\n'
+            f'{main_text}')]
+            for i in photos.split()[1:]:
+                arr.append(InputMediaPhoto(media=str(i)))
+            await query.message.answer('<b> Так выглядит ваш профиль: </b>', reply_markup=ReplyKeyboardRemove())
+            await query.message.answer_media_group(media=arr)
+
+            if premium_str:
+                if user.arr_of_liked_ids:
+                    func = main_menu_anketa_kb_premium_w_likes()
+                else:
+                    func = main_menu_anketa_kb_premium()
+                await query.message.answer('<b> Выберите действие: </b>', reply_markup=func)
+            else:
+                if user.arr_of_liked_ids:
+                    func = main_menu_anketa_kb_w_likes()
+                else:
+                    func = main_menu_anketa_kb()
+                await query.message.answer('<b> Выберите действие: </b>', reply_markup=func)
+            await state.clear()
+        else:
+            await query.message.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
+    except Exception as err:
+        await query.message.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
+
+
 @check_likes_router.message(Settings.check_like)
 async def do_the_deal(msg: Message, state: FSMContext, meow=False):
     sess = await database.create_session()

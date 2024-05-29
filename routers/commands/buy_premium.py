@@ -27,6 +27,7 @@ async def choose_premium(query: CallbackQuery, state: FSMContext):
     else:
         await query.message.edit_text('<b>Выберите длительность подписки:</b>', reply_markup=premium_types_kb())
 
+
 @premium_router.callback_query(PremiumInline.filter())
 async def premium(query: CallbackQuery, state: FSMContext):
     await state.clear()

@@ -14,7 +14,7 @@ router = Router(name=__name__)
 
 
 @router.message(CommandStart())
-@router.callback_query(F.data == 'come_home')
+# @router.callback_query(F.data == 'come_home')
 async def start(msg: Message, state: FSMContext):
     db_sess = await database.create_session()  # AsyncSession
     user = await db_sess.execute(select(User).filter_by(user_id=str(msg.from_user.id)))

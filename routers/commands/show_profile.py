@@ -31,7 +31,8 @@ async def show_profile(query: CallbackQuery, state: FSMContext):
     #     await query.message.answer('<b> Так выглядит ваш профиль: </b>', reply_markup=ReplyKeyboardRemove())
     #     await query.message.answer_media_group(media=arr)
 
-    await query.message.edit_text('<b> Прекрасная анкета, что вы хотите изменить? </b>', reply_markup=change_parameters_kb())
+    await query.message.edit_text('<b> Прекрасная анкета, что вы хотите изменить? </b>',
+                                  reply_markup=change_parameters_kb())
     await state.clear()
     await session.close()
 

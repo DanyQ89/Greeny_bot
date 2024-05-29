@@ -141,12 +141,14 @@ def check_likes_kb():
     builder.adjust(3)
     return builder.as_markup(resize_keyboard=True)
 
+
 def check_likes_final_kb():
     builder = InlineKeyboardBuilder()
     for text, callback in check_likes_kb_final_button:
         builder.button(text=text, callback_data=callback)
     builder.adjust(1)
     return builder.as_markup()
+
 
 def go_home_kb():
     builder = InlineKeyboardBuilder()
