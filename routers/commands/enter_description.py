@@ -25,22 +25,22 @@ async def text_who(msg: Message, state: FSMContext):
         lenn = len(msg.text)
         if 3 <= lenn <= 600:
             if text not in text_of_anketa_button:
-                await msg.answer('<b> Интересное описание анкеты! </b>')
+                await msg.answer('<b>Интересное описание анкеты!</b>')
             else:
                 text = ''
             user.mainText = text
             await session.commit()
-            await msg.answer('<b> Укажите свой пол </b>', reply_markup=who_kb())
+            await msg.answer('<b>Укажите свой пол</b>', reply_markup=who_kb())
             await state.set_state(Settings.who)
         else:
             if 0 < lenn < 3:
-                await msg.answer('<i> Текст анкеты слишком короткий </i>')
+                await msg.answer('<i>Текст анкеты слишком короткий </i>')
             elif lenn > 600:
-                await msg.answer('<i> Текст анкеты слишком длинный </i>')
+                await msg.answer('<i>Текст анкеты слишком длинный </i>')
             await state.set_state(Settings.text_of_anketa)
 
     except Exception as err:
-        await msg.answer('<i> Напишите что-то о себе или выберите кнопку "Не хочу ничего писать" </i>')
+        await msg.answer('<i>Напишите что-то о себе или выберите кнопку "Не хочу ничего писать" </i>')
         await state.set_state(Settings.text_of_anketa)
 
     finally:

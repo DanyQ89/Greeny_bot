@@ -32,7 +32,7 @@ async def start(msg: Message, state: FSMContext):
             user.username = str(msg.from_user.username)
             db_sess.add(user)
             await db_sess.commit()
-        await msg.answer('<b> Выберите язык </b>', reply_markup=langs_kb())
+        await msg.answer('<b>Выберите язык</b>', reply_markup=langs_kb())
         await state.set_state(Settings.lang)
 
     finally:

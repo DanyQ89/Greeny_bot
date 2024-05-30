@@ -24,8 +24,8 @@ async def height_min(msg: Message, state: FSMContext):
                 user.minHeight = int(msg.text)
 
 
-                await msg.answer(f'<b> Данные успешно сохранены! </b>')
-                await msg.answer('<b> Ваши фильтры пользователей:\n'
+                await msg.answer(f'<b>Данные успешно сохранены!</b>')
+                await msg.answer('<b>Ваши фильтры пользователей:\n'
                                  f'Возраст: {user.minAge} - {user.maxAge}\n'
                                  f'Рост: {user.minHeight} - {user.maxHeight}</b>', reply_markup=premium_settings_kb())
 
@@ -33,17 +33,17 @@ async def height_min(msg: Message, state: FSMContext):
                 await state.clear()
             else:
                 if msg.text.isdigit():
-                    await msg.answer(f'<i> Введите рост от <u>100 до {user.maxHeight - 1} см</u> </i>')
+                    await msg.answer(f'<i>Введите рост от <u>100 до {user.maxHeight - 1} см</u> </i>')
                 else:
-                    await msg.answer('<i> Введите минимальный рост <u>целым числом</u> </i>')
+                    await msg.answer('<i>Введите минимальный рост <u>целым числом</u> </i>')
                 await state.set_state(Settings.min_height)
         except Exception as err:
-            await msg.answer('<i> Введите минимальный рост <u>целым числом</u> </i>')
+            await msg.answer('<i>Введите минимальный рост <u>целым числом</u> </i>')
             await state.set_state(Settings.min_height)
         finally:
             await session.close()
     else:
-        await msg.answer('<i> К сожалению, вы не можете пользоваться опциями Premium-пользователя </i>')
+        await msg.answer('<i>К сожалению, вы не можете пользоваться опциями Premium-пользователя </i>')
 
 @premium_height_router.message(Settings.max_height)
 async def height_min(msg: Message, state: FSMContext):
@@ -56,8 +56,8 @@ async def height_min(msg: Message, state: FSMContext):
 
                 user.maxHeight = int(msg.text)
 
-                await msg.answer('<b> Данные успешно сохранены! </b>')
-                await msg.answer('<b> Ваши фильтры пользователей:\n'
+                await msg.answer('<b>Данные успешно сохранены!</b>')
+                await msg.answer('<b>Ваши фильтры пользователей:\n'
                                  f'Возраст: {user.minAge} - {user.maxAge}\n'
                                  f'Рост: {user.minHeight} - {user.maxHeight}</b>', reply_markup=premium_settings_kb())
 
@@ -66,14 +66,14 @@ async def height_min(msg: Message, state: FSMContext):
 
             else:
                 if msg.text.isdigit():
-                    await msg.answer(f'<i> Введите рост <u>от {user.minHeight + 1} до 250 см</u> </i>')
+                    await msg.answer(f'<i>Введите рост <u>от {user.minHeight + 1} до 250 см</u> </i>')
                 else:
-                    await msg.answer('<i> Введите максимальный рост <u>целым числом</u> </i>')
+                    await msg.answer('<i>Введите максимальный рост <u>целым числом</u> </i>')
                 await state.set_state(Settings.max_height)
         except Exception as err:
-            await msg.answer('<i> Введите максимальный рост <u>целым числом</u> </i>')
+            await msg.answer('<i>Введите максимальный рост <u>целым числом</u> </i>')
             await state.set_state(Settings.max_height)
         finally:
             await session.close()
     else:
-        await msg.answer('<i> К сожалению, вы не можете пользоваться опциями Premium-пользователя </i>')
+        await msg.answer('<i>К сожалению, вы не можете пользоваться опциями Premium-пользователя </i>')

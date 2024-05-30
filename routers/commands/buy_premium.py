@@ -37,9 +37,9 @@ async def premium(query: CallbackQuery, state: FSMContext):
         user = await session.execute(select(User).filter_by(user_id=str(query.message.chat.id)))
         user = user.scalars().first()
         if user.premium:
-            await query.message.edit_text('<b> Выберите действие: </b>', reply_markup=main_menu_anketa_kb_premium())
+            await query.message.edit_text('<b>Выберите действие:</b>', reply_markup=main_menu_anketa_kb_premium())
         else:
-            await query.message.edit_text('<b> Выберите действие: </b>', reply_markup=main_menu_anketa_kb())
+            await query.message.edit_text('<b>Выберите действие:</b>', reply_markup=main_menu_anketa_kb())
         await state.clear()
     else:
         if number == '30':
@@ -93,7 +93,7 @@ async def successful_payment_handler(msg: Message, state: FSMContext):
     date += delta
     user.end_premium = date
 
-    await msg.answer(f"<b> Поздравляем с активацией Premium-подписки до {user.end_premium}! </b>")
+    await msg.answer(f"<b>Поздравляем с активацией Premium-подписки до {user.end_premium}!</b>")
     await sess.commit()
     await sess.close()
     await show_user_profile(msg, state)

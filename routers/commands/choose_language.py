@@ -24,14 +24,14 @@ async def lang_name(msg: Message, state: FSMContext):
         if msg.text in langs_kb_buttons:
             user.language = msg.text[1:-1].lower()
             await session.commit()
-            await msg.answer('<b> Прекрасный выбор! </b>')
-            await msg.answer('<b> Как вас зовут? </b>', reply_markup=ReplyKeyboardRemove())
+            await msg.answer('<b>Прекрасный выбор!</b>')
+            await msg.answer('<b>Как вас зовут?</b>', reply_markup=ReplyKeyboardRemove())
             await state.set_state(Settings.name)
         else:
-            await msg.answer('<i> Выберите язык из <u>предложенных вариантов</u> </i>', reply_markup=langs_kb())
+            await msg.answer('<i>Выберите язык из <u>предложенных вариантов</u> </i>', reply_markup=langs_kb())
             await state.set_state(Settings.lang)
     except Exception as err:
-        await msg.answer('<i> Выберите язык из <u>предложенных вариантов</u> </i>', reply_markup=langs_kb())
+        await msg.answer('<i>Выберите язык из <u>предложенных вариантов</u> </i>', reply_markup=langs_kb())
         await state.set_state(Settings.lang)
 
     finally:

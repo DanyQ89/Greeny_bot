@@ -48,7 +48,7 @@ async def show_user_profile(msg: Message, state: FSMContext, userid=None):
                 for i in photos.split()[1:]:
                     arr.append(InputMediaPhoto(media=str(i)))
 
-            await msg.answer('<b> Так выглядит ваш профиль: </b>', reply_markup=ReplyKeyboardRemove())
+            await msg.answer('<b>Так выглядит ваш профиль:</b>', reply_markup=ReplyKeyboardRemove())
             await msg.answer_media_group(media=arr)
 
             if premium_str:
@@ -61,11 +61,11 @@ async def show_user_profile(msg: Message, state: FSMContext, userid=None):
                     func = main_menu_anketa_kb_w_likes()
                 else:
                     func = main_menu_anketa_kb()
-            await msg.answer('<b> Выберите действие: </b>', reply_markup=func)
+            await msg.answer('<b>Выберите действие:</b>', reply_markup=func)
         else:
-            await msg.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
+            await msg.answer('<i>Здесь какая-то ошибка, введите "/start" </i>')
     except Exception as err:
-        await msg.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
+        await msg.answer('<i>Здесь какая-то ошибка, введите "/start" </i>')
 
 
 async def send_profile(msg, state, user_id, send_to):
@@ -105,7 +105,7 @@ async def send_profile(msg, state, user_id, send_to):
         await msg.bot.send_media_group(chat_id=send_to, media=arr)
         await db_session.close()
     except Exception as err:
-        await msg.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
+        await msg.answer('<i>Здесь какая-то ошибка, введите "/start" </i>')
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):

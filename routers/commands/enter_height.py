@@ -23,14 +23,14 @@ async def height_coords(msg: Message, state: FSMContext):
             user.maxHeight = 250
             await session.commit()
             await session.close()
-            await msg.answer('<b> Укажите ваши координаты </b>', reply_markup=location_kb())
+            await msg.answer('<b>Укажите ваши координаты</b>', reply_markup=location_kb())
             await state.set_state(Settings.coords)
         else:
             if msg.text.isdigit():
-                await msg.answer('<i> Введите рост от 100 см до 250 см </i>')
+                await msg.answer('<i>Введите рост от 100 см до 250 см </i>')
             else:
-                await msg.answer('<i> Введите ваш рост <u>целым числом</u> </i>')
+                await msg.answer('<i>Введите ваш рост <u>целым числом</u> </i>')
             await state.set_state(Settings.height)
     except Exception as err:
-        await msg.answer('<i> Введите ваш рост <u>целым числом</u> </i>')
+        await msg.answer('<i>Введите ваш рост <u>целым числом</u> </i>')
         await state.set_state(Settings.height)

@@ -20,28 +20,28 @@ async def premium_relocate(query: CallbackQuery, state: FSMContext):
 
     # если chat_id и user_id станут разными то ошибка будет здесь
 
-    await query.message.edit_text('<b> Ваши фильтры пользователей:\n'
+    await query.message.edit_text('<b>Ваши фильтры пользователей:\n'
                      f'Возраст: {user.minAge} - {user.maxAge}\n'
                      f'Рост: {user.minHeight} - {user.maxHeight}</b>', reply_markup=premium_settings_kb())
 
-    # await query.message.edit_text('<b> Выберите дополнительный параметр: </b>', reply_markup=premium_settings_kb())
+    # await query.message.edit_text('<b>Выберите дополнительный параметр:</b>', reply_markup=premium_settings_kb())
 
 @premium_relocate_router.callback_query(PremiumSettings.filter())
 async def premium_settings(query: CallbackQuery, state: FSMContext):
     data = query.data.split(':')[1]
     if data == 'set_height_min':
-        await query.message.edit_text('<b> Введите минимальный рост пользователя </b>')
+        await query.message.edit_text('<b>Введите минимальный рост пользователя</b>')
         await state.set_state(Settings.min_height)
     elif data == 'set_age_min':
-        await query.message.edit_text('<b> Введите минимальный возраст пользователя </b>')
+        await query.message.edit_text('<b>Введите минимальный возраст пользователя</b>')
         await state.set_state(Settings.min_age)
     elif data == 'set_height_max':
-        await query.message.edit_text('<b> Введите максимальный рост пользователя </b>')
+        await query.message.edit_text('<b>Введите максимальный рост пользователя</b>')
         await state.set_state(Settings.max_height)
     elif data == 'set_age_max':
-        await query.message.edit_text('<b> Введите максимальный возраст пользователя </b>')
+        await query.message.edit_text('<b>Введите максимальный возраст пользователя</b>')
         await state.set_state(Settings.max_age)
     elif data == 'come_home':
-        await query.message.edit_text('<b> Выберите действие: </b>',
+        await query.message.edit_text('<b>Выберите действие:</b>',
                                       reply_markup=main_menu_anketa_kb_premium())
         await state.clear()

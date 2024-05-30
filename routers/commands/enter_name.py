@@ -22,14 +22,14 @@ async def name_age(msg: Message, state: FSMContext):
         if 2 <= len(msg.text) <= 20:
             user.name = msg.text
             await session.commit()
-            await msg.answer(f'<b> {random.choice(komps_for_name)} имя! </b>')
-            await msg.answer('<b> Сколько вам лет? </b>', reply_markup=ReplyKeyboardRemove())
+            await msg.answer(f'<b>{random.choice(komps_for_name)} имя!</b>')
+            await msg.answer('<b>Сколько вам лет?</b>', reply_markup=ReplyKeyboardRemove())
             await state.set_state(Settings.age)
         else:
-            await msg.answer('<i> Введите ваше имя длиной <u>от 2 до 20 символов</u> </i>')
+            await msg.answer('<i>Введите ваше имя длиной <u>от 2 до 20 символов</u> </i>')
             await state.set_state(Settings.name)
     except Exception as err:
-        await msg.answer('<i> Введите ваше имя длиной <u>от 2 до 20 символов</u> </i>')
+        await msg.answer('<i>Введите ваше имя длиной <u>от 2 до 20 символов</u> </i>')
         await state.set_state(Settings.name)
     finally:
         await session.close()

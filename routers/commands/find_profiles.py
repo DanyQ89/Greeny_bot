@@ -31,9 +31,9 @@ async def before_f_p(query: CallbackQuery, state: FSMContext):
     await session.commit()
     await session.close()
     if not premium:
-        await query.message.answer('<b> Загружаем профили... </b>', reply_markup=like_or_not_kb())
+        await query.message.answer('<b>Загружаем профили...</b>', reply_markup=like_or_not_kb())
     else:
-        await query.message.answer('<b> Загружаем профили... </b>', reply_markup=like_or_not_premium_kb())
+        await query.message.answer('<b>Загружаем профили...</b>', reply_markup=like_or_not_premium_kb())
 
     await find_profiles_message(query.message, state, user_id)
 
@@ -82,16 +82,16 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                             user.premium_like -= 1
                             like = 'понравился' if (user.find_gender == 'm') else 'понравилась'
 
-                            await msg.answer('<b> Вы активировали функцию Premium-лайка\n'
+                            await msg.answer('<b>Вы активировали функцию Premium-лайка\n'
                                              f'Вам {like} @{liked_user.username}</b>')
 
                             await send_profile(msg, state, user_id=user.user_id, send_to=str(user.last_user_id))
                             await msg.bot.send_message(chat_id=str(user.last_user_id),
-                                                       text=f'<b> Вы понравились Premium-пользователю @{user.username} </b>')
+                                                       text=f'<b>Вы понравились Premium-пользователю @{user.username}</b>')
 
                         else:
-                            await msg.answer('<b> Вы превысили лимит использования данной функции, вы можете купить'
-                                             ' премиум подписку или ожидать до следующего  дня </b>')
+                            await msg.answer('<b>Вы превысили лимит использования данной функции, вы можете купить'
+                                             ' премиум подписку или ожидать до следующего  дня</b>')
                             arr.insert(0, user.last_user_id)
 
                     elif reaction == '⏪':
@@ -99,7 +99,7 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                             arr.insert(0, user.last_user_id)
                             arr.insert(0, user.last_last_user_id)
                         else:
-                            await msg.answer('<i> Вы не можете вернуть профиль назад, не пропустив его</i>')
+                            await msg.answer('<i>Вы не можете вернуть профиль назад, не пропустив его</i>')
                 else:
                     if reaction == '🩷':
                         liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
@@ -120,7 +120,7 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                     elif reaction == '🤮':
                         meow = True
                     else:
-                        await msg.answer('<i> Нет такого варианта ответа </i>')
+                        await msg.answer('<i>Нет такого варианта ответа </i>')
                         arr.insert(0, user.last_user_id)
 
             user.last_last_user_id = user.last_user_id
@@ -161,12 +161,12 @@ async def like_w_letter(msg: Message, state: FSMContext, userid, chatid):
             await find_profiles_message(msg, state, userid)
         else:
             if lenn < 3:
-                await msg.answer('<i> Сообщение должно быть <u>от 3</u> символов</i>')
+                await msg.answer('<i>Сообщение должно быть <u>от 3</u> символов</i>')
             else:
-                await msg.answer('<i> Сообщение должно быть <u>до 100</u> символов</i>')
+                await msg.answer('<i>Сообщение должно быть <u>до 100</u> символов</i>')
             await state.set_state(Settings.letter_msg)
     except Exception as err:
-        await msg.answer('<i> Напишите сообщение <u>текстом</u> </i>')
+        await msg.answer('<i>Напишите сообщение <u>текстом</u> </i>')
         await state.set_state(Settings.letter_msg)
 
 

@@ -37,26 +37,26 @@ async def photo_text(msg: Message, state: FSMContext):
             await session.close()
 
             if lenn + 1 > 4:
-                await msg.answer('<b> Отлично! Фотографии сохранены </b>')
-                await msg.answer('<b> Напишите немного о себе </b>', reply_markup=text_of_anketa_kb())
+                await msg.answer('<b>Отлично! Фотографии сохранены</b>')
+                await msg.answer('<b>Напишите немного о себе</b>', reply_markup=text_of_anketa_kb())
                 await state.set_state(Settings.text_of_anketa)
             else:
-                await msg.answer(f'<b> Фотография №{lenn + 1} из 5, загрузить еще? </b>',
+                await msg.answer(f'<b>Фотография №{lenn + 1} из 5, загрузить еще?</b>',
                                  reply_markup=photos_kb())
                 await state.set_state(Settings.photo)
 
         elif msg.text in photos_kb_button:
             if user.photos:
-                await msg.answer('<b> Отлично! Фотографии сохранены </b>')
-                await msg.answer('<b> Напишите немного о себе </b>', reply_markup=text_of_anketa_kb())
+                await msg.answer('<b>Отлично! Фотографии сохранены</b>')
+                await msg.answer('<b>Напишите немного о себе</b>', reply_markup=text_of_anketa_kb())
                 await state.set_state(Settings.text_of_anketa)
             else:
-                await msg.answer('<i> Анкета не может содержать <u>ни одной</u> фотографии </i>',
+                await msg.answer('<i>Анкета не может содержать <u>ни одной</u> фотографии </i>',
                              reply_markup=ReplyKeyboardRemove())
 
                 await state.set_state(Settings.photo)
             await session.close()
     except Exception as err:
-        await msg.answer('<b> Пришлите фотографию </b>')
+        await msg.answer('<b>Пришлите фотографию</b>')
         await state.set_state(Settings.photo)
 

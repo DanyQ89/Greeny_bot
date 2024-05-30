@@ -24,7 +24,7 @@ async def job():
         user.maxAge = user.age + 2
         user.minHeight = 100
         user.maxHeight = 250
-        await bot.send_message(chat_id=int(user.user_id), text='<b> Премиум подписка закончилась </b>')
+        await bot.send_message(chat_id=int(user.user_id), text='<b>Премиум подписка закончилась</b>')
         await db_session.commit()
     await db_session.close()
 

@@ -17,7 +17,7 @@ async def show_profile(query: CallbackQuery, state: FSMContext):
     user = await session.execute(select(User).filter_by(user_id=str(query.from_user.id)))
     user = user.scalars().first()
 
-    await query.message.edit_text('<b> Прекрасная анкета, что вы хотите изменить? </b>',
+    await query.message.edit_text('<b>Прекрасная анкета, что вы хотите изменить?</b>',
                                   reply_markup=change_parameters_kb())
     await state.clear()
     await session.close()

@@ -28,16 +28,16 @@ async def age_height(msg: Message, state: FSMContext):
                 user.maxAge = 130
 
             await session.commit()
-            await msg.answer('<b> Введите ваш рост в сантиметрах</b>', reply_markup=ReplyKeyboardRemove())
+            await msg.answer('<b>Введите ваш рост в сантиметрах</b>', reply_markup=ReplyKeyboardRemove())
             await state.set_state(Settings.height)
         else:
             if msg.text.isdigit():
-                await msg.answer('<i> Введите возраст <u>от 10 до 130</u> </i>')
+                await msg.answer('<i>Введите возраст <u>от 10 до 130</u> </i>')
             else:
-                await msg.answer('<i> Введите ваш возраст <u>целым числом</u> </i>')
+                await msg.answer('<i>Введите ваш возраст <u>целым числом</u> </i>')
             await state.set_state(Settings.age)
     except Exception as err:
-        await msg.answer('<i> Введите ваш возраст <u>целым числом</u> </i>')
+        await msg.answer('<i>Введите ваш возраст <u>целым числом</u> </i>')
         await state.set_state(Settings.age)
     finally:
         await session.close()
