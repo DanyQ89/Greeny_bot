@@ -31,8 +31,8 @@ show_profile_kb_button = [['😊Имя😊', 'change_name'], ['⏳Возраст
 
 photos_del_or_not_kb_button = ['Да👌🏻', 'Нет⛔']
 
-like_or_not_kb_button = ['🩷', '💌', '🤮', '🏠']
-like_or_not_kb_button_premium = ['🩷', '💌', '🤮', '❤️‍🔥', '⏪', '🏠']
+like_or_not_kb_button = ['🩷', '🤮', '🏠']
+like_or_not_kb_button_premium = ['🩷', '🤮', '❤️‍🔥', '⏪', '🏠']
 check_likes_kb_button = ['🩷', '🤮', '🏠']
 
 premium_settings_kb_button = [['🦴Установить минимальный рост🦴', 'set_height_min'],
@@ -42,6 +42,6 @@ premium_settings_kb_button = [['🦴Установить минимальный 
                               ['🔙Вернуться на главную🔙', 'come_home']
                               ]
 
-check_likes_kb_final_button = [['🤍Показать профили🤍', 'check_likes_final'], ['🔙Вернуться на главную🔙', 'come_home']]
+check_likes_kb_final_button = [['🤍Показать профили🤍', 'check_likes_final'], ['🔙Вернуться на главную🔙', '_come_home']]
 
 go_home_kb_button = [['🔙Вернуться на главную🔙', 'come_home']]

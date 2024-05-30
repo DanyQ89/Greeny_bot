@@ -56,7 +56,7 @@ async def go_home(query: CallbackQuery, state: FSMContext):
     db_session = await database.create_session()  # AsyncSession
     user = await db_session.execute(select(User).filter_by(user_id=str(query.from_user.id)))
     user = user.scalars().first()
-
+    await db_session.close()
     try:
         if user:
             name, age, height, photos, main_text, city = user.name, user.age, user.height, user.photos, user.mainText, user.city
@@ -92,41 +92,75 @@ async def go_home(query: CallbackQuery, state: FSMContext):
         await query.message.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
 
 
+@check_likes_router.callback_query(F.data == '_come_home')
+async def go_home(query: CallbackQuery, state: FSMContext):
+    print("YES YES YES")
+    db_session = await database.create_session()  # AsyncSession
+    user = await db_session.execute(select(User).filter_by(user_id=str(query.from_user.id)))
+    user = user.scalars().first()
+    await db_session.close()
+    try:
+        if user:
+            premium_str = '🟢Premium-пользователь🟢\n' if user.premium else ''
+            if premium_str:
+                if user.arr_of_liked_ids:
+                    func = main_menu_anketa_kb_premium_w_likes()
+                else:
+                    func = main_menu_anketa_kb_premium()
+                await query.message.edit_text('<b> Выберите действие: </b>', reply_markup=func)
+            else:
+                if user.arr_of_liked_ids:
+                    func = main_menu_anketa_kb_w_likes()
+                else:
+                    func = main_menu_anketa_kb()
+                await query.message.edit_text('<b> Выберите действие: </b>', reply_markup=func)
+            await state.clear()
+        else:
+            await query.message.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
+    except Exception as err:
+        await query.message.answer('<i> Здесь какая-то ошибка, введите "/start" </i>')
+
+
 @check_likes_router.message(Settings.check_like)
 async def do_the_deal(msg: Message, state: FSMContext, meow=False):
     sess = await database.create_session()
     user = await sess.execute(select(User).filter_by(user_id=str(msg.chat.id)))
     user = user.scalars().first()
     array_of_liked = pickle.loads(user.arr_of_liked_ids)
-
-    if not array_of_liked:
-        await msg.answer('<b> Вы просмотрели всех пользователей </b>', reply_markup=go_home_kb())
-    else:
-        now = array_of_liked[0]
-        liked_user = await sess.execute(select(User).filter_by(user_id=now))
-        liked_user = liked_user.scalars().first()
-        if not meow:
-            if msg.text not in check_likes_kb_button:
-                await msg.answer('<i> Такого варианта ответа не существует </i>')
-            else:
-                if msg.text in ['🩷', '🤮']:
-                    if msg.text == '🩷':
-                        word = 'понравился' if (user.find_gender == 'm') else 'понравилась'
-                        await msg.answer(f'<b> Вам {word} @{liked_user.username} </b>')
-                        await send_user_profile(msg, state, str(user.user_id), now)
-                    if len(array_of_liked) > 1:
-                        array_of_liked = array_of_liked[1:]
-                        await send_user_profile(msg, state, array_of_liked[0], str(user.user_id))
-                        await state.set_state(Settings.check_like)
-                    else:
-                        array_of_liked = []
-                        await msg.answer('<b> Вы просмотрели всех пользователей </b>', reply_markup=go_home_kb())
-                    user.arr_of_liked_ids = pickle.dumps(array_of_liked)
-                elif msg.text == '🏠':
-                    await start(msg, state)
-                    await state.clear()
+    print(f'{meow=}')
+    try:
+        if not array_of_liked:
+            await msg.answer('<b> Вы просмотрели всех пользователей </b>', reply_markup=go_home_kb())
         else:
-            await send_user_profile(msg, state, now, str(user.user_id), meow=True)
-            await state.set_state(Settings.check_like)
-    await sess.commit()
-    await sess.close()
+            now = array_of_liked[0]
+            liked_user = await sess.execute(select(User).filter_by(user_id=now))
+            liked_user = liked_user.scalars().first()
+            if not meow:
+                if msg.text not in check_likes_kb_button:
+                    await msg.answer('<i> Такого варианта ответа не существует </i>')
+                else:
+                    print("stop...")
+                    if msg.text in ['🩷', '🤮']:
+                        if msg.text == '🩷':
+                            word = 'понравился' if (user.find_gender == 'm') else 'понравилась'
+                            await msg.answer(f'<b> Вам {word} @{liked_user.username} </b>')
+                        if len(array_of_liked) > 1:
+                            array_of_liked = array_of_liked[1:]
+                            await send_user_profile(msg, state, array_of_liked[0], str(user.user_id))
+                            await state.set_state(Settings.check_like)
+                        else:
+                            array_of_liked = []
+                            await msg.answer('<b> Вы просмотрели всех пользователей </b>', reply_markup=go_home_kb())
+                        user.arr_of_liked_ids = pickle.dumps(array_of_liked)
+                    elif msg.text == '🏠':
+                        await start(msg, state)
+                        await state.clear()
+            else:
+                print("else")
+                await send_user_profile(msg, state, now, str(user.user_id), meow=True)
+                await state.set_state(Settings.check_like)
+    except Exception as err:
+        print(f"[Error] {err}")
+    finally:
+        await sess.commit()
+        await sess.close()

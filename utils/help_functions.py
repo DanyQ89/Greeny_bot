@@ -86,6 +86,10 @@ async def show_user_for_finding(msg: Message, state: FSMContext, userid, user_co
 
 
 async def send_user_profile(msg: Message, state: FSMContext, userid, chatid, meow=False):
+    """
+    :param userid: another_user
+    :param chatid: your account
+    """
     db_session = await database.create_session()  # AsyncSession
     user = await db_session.execute(select(User).filter_by(user_id=userid))
     user = user.scalars().first()
@@ -112,12 +116,11 @@ async def send_user_profile(msg: Message, state: FSMContext, userid, chatid, meo
             await msg.bot.send_media_group(chat_id=chatid, media=arr)
             if not meow:
                 if premium_str:
-                    await msg.bot.send_message(chat_id=chatid,
-                                               text=f'<b> Вы понравились Premium-пользователю @{user.username}</b>')
+                    await msg.bot.send_message(chat_id=userid,
+                                               text=f'<b> Вы понравились Premium-пользователю @{to_user.username}</b>')
                 else:
-                    await msg.bot.send_message(chat_id=chatid,
-                                               text=f'<b> У вас взаимная симпатия с пользователем @{user.username} </b>')
-
+                    await msg.bot.send_message(chat_id=userid,
+                                               text=f'<b> У вас взаимная симпатия с пользователем @{to_user.username} </b>')
     except Exception as err:
         print(err)
 
