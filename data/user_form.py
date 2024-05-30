@@ -32,4 +32,4 @@ class User(SqlAlchemyBase):
     end_premium = Column(Date)
     premium_like = Column(Integer, default=0)
     premium_back = Column(Integer, default=3)
-
+    active = Column(Boolean, default=True)

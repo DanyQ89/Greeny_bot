@@ -156,3 +156,11 @@ def go_home_kb():
         builder.button(text=text, callback_data=callback)
     builder.adjust(1)
     return builder.as_markup()
+
+
+def go_home_edit_text_kb():
+    builder = InlineKeyboardBuilder()
+    for text, callback in go_home_kb_button_edit_text:
+        builder.button(text=text, callback_data=callback)
+    builder.adjust(1)
+    return builder.as_markup()

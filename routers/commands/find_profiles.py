@@ -5,7 +5,7 @@ from data import database
 from data.user_form import User
 from sqlalchemy import and_, select
 from utils.keyboards import like_or_not_kb, like_or_not_premium_kb
-from utils.help_functions import haversine_distance, show_user_for_finding, send_user_profile
+from utils.help_functions import haversine_distance, send_profile
 # from settings_user import Settings
 from data.change_profile_user import ChangeSettings as Settings
 import pickle
@@ -50,51 +50,50 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
         meow = False
         check = True if (user.last_user_id and arr) else False
         reaction = msg.text
-        print(arr, reaction)
         if check and (reaction == '🏠'):
             await start(msg, state)
-            await state.clear()
+            # await state.clear()
         # elif check or reaction != 'Выберите действие:':
         else:
             if check:
                 if user.premium:
                     if reaction == '🩷':
-                        print("why")
                         liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
                         liked_user = liked_user.scalars().first()
-                        print("MEOW")
                         #
                         #
                         #
                         arr_liked = []
                         if liked_user.arr_of_liked_ids:
                             arr_liked = pickle.loads(liked_user.arr_of_liked_ids)
-                        print(11)
                         arr_liked.append(str(user.user_id))
-                        print(22)
                         liked_user.arr_of_liked_ids = pickle.dumps(arr_liked)
 
                         #
                         #
                         #
                         await msg.answer('meow 🩷')
-                    # elif reaction == '💌':
-                    #     await msg.answer('<b> Напишите сообщение пользователю: </b>')
-                    #     await state.set_state(Settings.letter_msg)
-                    #     await like_w_letter(msg, state, userid, user.last_user_id)
                     elif reaction == '🤮':
                         meow = True
-                    elif reaction == '❤️‍🔥' and user.premium_like >= 1:
-                        liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
-                        liked_user = liked_user.scalars().first()
-                        user.premium_like -= 1
-                        like = 'понравился' if (user.find_gender == 'm') else 'понравилась'
-                        await msg.answer('<b> Вы активировали функцию Premium-лайка\n'
-                                         f'Вам {like} @{liked_user.username}</b>')
-                        await send_user_profile(msg, state, userid, str(user.last_user_id))
                     elif reaction == '❤️‍🔥':
-                        await msg.answer('<b> Вы превысили лимит использования данной функции, вы можете купить'
-                                         ' премиум подписку или ожидать до следующего  дня </b>')
+                        if user.premium_like > 0:
+                            liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
+                            liked_user = liked_user.scalars().first()
+                            user.premium_like -= 1
+                            like = 'понравился' if (user.find_gender == 'm') else 'понравилась'
+
+                            await msg.answer('<b> Вы активировали функцию Premium-лайка\n'
+                                             f'Вам {like} @{liked_user.username}</b>')
+
+                            await send_profile(msg, state, user_id=user.user_id, send_to=str(user.last_user_id))
+                            await msg.bot.send_message(chat_id=str(user.last_user_id),
+                                                       text=f'<b> Вы понравились Premium-пользователю @{user.username} </b>')
+
+                        else:
+                            await msg.answer('<b> Вы превысили лимит использования данной функции, вы можете купить'
+                                             ' премиум подписку или ожидать до следующего  дня </b>')
+                            arr.insert(0, user.last_user_id)
+
                     elif reaction == '⏪':
                         if user.last_last_user_id:
                             arr.insert(0, user.last_user_id)
@@ -111,29 +110,26 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                         arr_liked = []
                         if liked_user.arr_of_liked_ids:
                             arr_liked = pickle.loads(liked_user.arr_of_liked_ids)
-                        print(1)
                         arr_liked.append(str(user.user_id))
-                        print(2)
                         liked_user.arr_of_liked_ids = pickle.dumps(arr_liked)
 
                         #
                         #
                         #
                         await msg.answer('meow 🩷')
-                    # elif reaction == '💌':
-                    #     await msg.answer('<b> Напишите сообщение пользователю: </b>')
-                    #     await state.set_state(Settings.letter_msg)
-                    #     await like_w_letter(msg, state, userid, user.last_user_id)
                     elif reaction == '🤮':
                         meow = True
-                    elif reaction == '❤️‍🔥':
-                        await msg.answer('<b> Функция супер лайка доступна только для пользователей с премиумом </b>')
+                    else:
+                        await msg.answer('<i> Нет такого варианта ответа </i>')
+                        arr.insert(0, user.last_user_id)
+
             user.last_last_user_id = user.last_user_id
             user.last_user_id = arr[0]
-            if len(arr) > 1 and reaction != '🏠' and reaction != ' Выберите действие:':
-                arr = arr[1:]
-            else:
-                arr = []
+            if reaction not in ['🏠', '<b>Выберите действие:</b>']:
+                if len(arr) > 1:
+                    arr = arr[1:]
+                else:
+                    arr = []
             #
             #
             #
@@ -141,12 +137,9 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
             #
             #
             #
-            print(arr)
-            print(100)
-            await show_user_for_finding(msg, state, str(user.last_user_id), user.coord_x, user.coord_y)
+            await send_profile(msg, state, user_id=user.last_user_id, send_to=user.user_id)
             await session.commit()
             await session.close()
-            print("No error")
 
     except Exception as err:
         print("[ERROR]", err)
@@ -185,12 +178,13 @@ async def get_users_by_distance(userid):
 
     users = await session.execute(select(User).filter(and_(
         User.user_id != user.user_id,
+        User.active == 1,
         User.find_gender == user.gender,
         User.gender == user.find_gender,
         user.minAge <= User.age,
         User.age <= user.maxAge,
         user.minHeight <= User.height,
-        User.height <= user.maxHeight
+        User.height <= user.maxHeight,
     )))
 
     users = users.scalars().all()

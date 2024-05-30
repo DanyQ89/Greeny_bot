@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardRemove
 
 from data import database
 from data.user_form import User
@@ -25,6 +25,7 @@ async def start(msg: Message, state: FSMContext):
         await show_user_profile(msg, state)
 
     except Exception as err:
+        print(err)
         if not user or not user.username:
             user = User()
             user.user_id = str(msg.from_user.id)
