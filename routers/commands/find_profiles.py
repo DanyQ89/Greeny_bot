@@ -95,11 +95,16 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                             arr.insert(0, user.last_user_id)
 
                     elif reaction == '⏪':
-                        if user.last_last_user_id:
-                            arr.insert(0, user.last_user_id)
-                            arr.insert(0, user.last_last_user_id)
+                        arr.insert(0, user.last_user_id)
+                        if user.premium_back > 0:
+                            user.premium_back -= 1
+                            if user.last_last_user_id:
+                                arr.insert(0, user.last_last_user_id)
+                            else:
+                                await msg.answer('<i>Вы не можете вернуть профиль назад, не пропустив его</i>')
                         else:
-                            await msg.answer('<i>Вы не можете вернуть профиль назад, не пропустив его</i>')
+                            await msg.answer('<b>Вы превысили лимит использования данной функции, вы можете купить'
+                                             ' премиум подписку или ожидать до следующего  дня</b>')
                 else:
                     if reaction == '🩷':
                         liked_user = await session.execute(select(User).filter_by(user_id=str(user.last_user_id)))
@@ -120,7 +125,7 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                     elif reaction == '🤮':
                         meow = True
                     else:
-                        await msg.answer('<i>Нет такого варианта ответа </i>')
+                        await msg.answer('<i>Такого варианта ответа не существует </i>')
                         arr.insert(0, user.last_user_id)
 
             user.last_last_user_id = user.last_user_id

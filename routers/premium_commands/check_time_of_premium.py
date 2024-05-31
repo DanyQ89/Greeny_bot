@@ -11,13 +11,13 @@ async def job():
     now = datetime.datetime.now()
     current_time = str(now.strftime("%Y-%m-%d"))
     db_session = await database.create_session()
-    users = await db_session.execute(select(User).filter(User.premium == True, User.end_premium <= current_time))
+    users = await db_session.execute(select(User).filter(User.premium == 1, User.end_premium <= current_time))
     users = users.scalars().all()
     array_of_users = [user.id for user in users]
     for db_id in array_of_users:
         user = await db_session.execute(select(User).filter_by(id=db_id))
         user = user.scalars().first()
-        user.premium = False
+        user.premium = 0
         user.premium_like = 0
         user.premium_back = 0
         user.minAge = user.age - 2
@@ -31,7 +31,7 @@ async def job():
 
 async def recovery():
     db_session = await database.create_session()
-    users = await db_session.execute(select(User).filter_by(premium=True))
+    users = await db_session.execute(select(User).filter_by(premium=1))
     users = users.scalars().all()
     array_of_users = [user.id for user in users]
     for tg_id in array_of_users:
@@ -46,6 +46,6 @@ async def recovery():
 async def check():
     print("running")
     while True:
+        await asyncio.sleep(60 * 60 * 24)
         await recovery()
-        await asyncio.sleep(60)
         await job()

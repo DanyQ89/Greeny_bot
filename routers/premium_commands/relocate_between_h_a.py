@@ -7,10 +7,11 @@ from data.user_form import User
 from data import database
 from sqlalchemy import select
 from commands_inline_user import PremiumSettings
-from utils.keyboards import premium_settings_kb, main_menu_anketa_kb_premium
+from utils.keyboards import premium_settings_kb, main_menu_anketa_kb_premium, go_home_edit_text_kb
 from data.database import create_session
 
 premium_relocate_router = Router(name=__name__)
+
 
 @premium_relocate_router.callback_query(F.data == 'premium_settings')
 async def premium_relocate(query: CallbackQuery, state: FSMContext):
@@ -19,12 +20,15 @@ async def premium_relocate(query: CallbackQuery, state: FSMContext):
     user = user.scalars().first()
 
     # если chat_id и user_id станут разными то ошибка будет здесь
+    if user.premium:
+        await query.message.edit_text('<b>Ваши фильтры пользователей:\n'
+                                      f'Возраст: {user.minAge} - {user.maxAge}\n'
+                                      f'Рост: {user.minHeight} - {user.maxHeight}</b>',
+                                      reply_markup=premium_settings_kb())
+    else:
+        await query.message.edit_text('<b>К сожалению, вы не можете пользоваться опциями Premium-пользователя</b>',
+                                      reply_markup=go_home_edit_text_kb())
 
-    await query.message.edit_text('<b>Ваши фильтры пользователей:\n'
-                     f'Возраст: {user.minAge} - {user.maxAge}\n'
-                     f'Рост: {user.minHeight} - {user.maxHeight}</b>', reply_markup=premium_settings_kb())
-
-    # await query.message.edit_text('<b>Выберите дополнительный параметр:</b>', reply_markup=premium_settings_kb())
 
 @premium_relocate_router.callback_query(PremiumSettings.filter())
 async def premium_settings(query: CallbackQuery, state: FSMContext):

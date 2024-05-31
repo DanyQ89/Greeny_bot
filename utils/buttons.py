@@ -24,7 +24,8 @@ main_menu_kb_button_premium = [['🔎Искать анкеты🔍', 'find_profi
                                ['🟢Продлить премиум🟢', 'get_premium'],
                                ['💔Отключить анкету💔', 'disable_profile']]
 
-main_menu_kb_button_premium_w_likes = [['🔎Искать анкеты🔍', 'find_profiles'], ['🪪Мой профиль🪪', 'show_profile'],
+main_menu_kb_button_premium_w_likes = [['🔎Искать анкеты🔍', 'find_profiles'],
+                                       ['🪪Мой профиль🪪', 'show_profile'],
                                        ['✨Расширенные настройки✨', 'premium_settings'],
                                        ['🟢Продлить премиум🟢', 'get_premium'],
                                        ['🤍Мои лайки🤍', 'check_likes'],

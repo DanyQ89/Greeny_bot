@@ -139,6 +139,7 @@ async def do_the_deal(msg: Message, state: FSMContext, meow=False):
                 await send_profile(msg, state, now, user.user_id)
                 await state.set_state(Settings.check_like)
     except Exception as err:
+        pass
     finally:
         await sess.commit()
         await sess.close()
