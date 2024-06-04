@@ -1,3 +1,5 @@
+import pickle
+
 from aiogram import Router
 
 from data import database
@@ -27,7 +29,10 @@ async def show_user_profile(msg: Message, state: FSMContext, userid=None):
     try:
         if user:
             name, age, height, photos, main_text, city = user.name, user.age, user.height, user.photos, user.mainText, user.city
-
+            if not photos:
+                user.photos = 'AgACAgIAAxkBAAICXWZchNUoWK4fsvDm1NTwwN64glthAAJm2DEbWZS4SiLZlyqJOywaAQADAgADeQADNQQ'
+                await db_session.commit()
+                photos = 'AgACAgIAAxkBAAICXWZchNUoWK4fsvDm1NTwwN64glthAAJm2DEbWZS4SiLZlyqJOywaAQADAgADeQADNQQ'
             # premium_str = '🟢Premium-пользователь🟢\n' if user.premium else ''
             premium_str = True if user.premium else False
             if premium_str:
@@ -47,24 +52,30 @@ async def show_user_profile(msg: Message, state: FSMContext, userid=None):
             if photos.count(' '):
                 for i in photos.split()[1:]:
                     arr.append(InputMediaPhoto(media=str(i)))
-
             await msg.answer('<b>Так выглядит ваш профиль:</b>', reply_markup=ReplyKeyboardRemove())
             await msg.answer_media_group(media=arr)
-
+            try:
+                likes_arr = pickle.loads(user.arr_of_liked_ids)
+            except Exception:
+                likes_arr = []
             if premium_str:
-                if user.arr_of_liked_ids:
+                if likes_arr:
                     func = main_menu_anketa_kb_premium_w_likes()
                 else:
                     func = main_menu_anketa_kb_premium()
             else:
-                if user.arr_of_liked_ids:
+                if likes_arr:
                     func = main_menu_anketa_kb_w_likes()
                 else:
                     func = main_menu_anketa_kb()
+
             await msg.answer('<b>Выберите действие:</b>', reply_markup=func)
+            await db_session.close()
         else:
             await msg.answer('<i>Здесь какая-то ошибка, введите "/start" </i>')
+            await db_session.close()
     except Exception as err:
+        await db_session.close()
         await msg.answer('<i>Здесь какая-то ошибка, введите "/start" </i>')
 
 

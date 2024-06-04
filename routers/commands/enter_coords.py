@@ -25,7 +25,6 @@ async def coords_photo(msg: Message, state: FSMContext):
                                  adapter_factory=AioHTTPAdapter) as geolocator:
                 loc = await geolocator.reverse((user.coord_x, user.coord_y), exactly_one=True)
                 address = loc.raw['address']
-                print(address)
                 user.city = address.get('city', 'none')
                 try:
                     user.city = address['city']

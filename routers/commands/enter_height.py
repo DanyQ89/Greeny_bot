@@ -6,6 +6,7 @@ from settings_user import Settings
 from utils.keyboards import location_kb
 from data import database
 from data.user_form import User
+
 height_coords_router = Router(name=__name__)
 from sqlalchemy import select
 
@@ -23,7 +24,8 @@ async def height_coords(msg: Message, state: FSMContext):
             user.maxHeight = 250
             await session.commit()
             await session.close()
-            await msg.answer('<b>Укажите ваши координаты</b>', reply_markup=location_kb())
+            await msg.answer('<b>Укажите ваши координаты\n(они будут зашифрованы и не смогут быть просмотрены)</b>',
+                             reply_markup=location_kb())
             await state.set_state(Settings.coords)
         else:
             if msg.text.isdigit():

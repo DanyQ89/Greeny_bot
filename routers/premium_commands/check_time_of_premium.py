@@ -3,15 +3,15 @@ import asyncio
 from data import database
 
 from data.user_form import User
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from main import bot
 
 
 async def job():
-    now = datetime.datetime.now()
-    current_time = str(now.strftime("%Y-%m-%d"))
+    now = datetime.date.today()
+
     db_session = await database.create_session()
-    users = await db_session.execute(select(User).filter(User.premium == 1, User.end_premium <= current_time))
+    users = await db_session.execute(select(User).filter(and_(User.premium == 1, User.end_premium <= now)))
     users = users.scalars().all()
     array_of_users = [user.id for user in users]
     for db_id in array_of_users:
@@ -24,6 +24,7 @@ async def job():
         user.maxAge = user.age + 2
         user.minHeight = 100
         user.maxHeight = 250
+        user.end_premium = None
         await bot.send_message(chat_id=int(user.user_id), text='<b>Премиум подписка закончилась</b>')
         await db_session.commit()
     await db_session.close()
@@ -44,8 +45,7 @@ async def recovery():
 
 
 async def check():
-    print("running")
     while True:
-        await asyncio.sleep(60 * 60 * 24)
-        await recovery()
         await job()
+        await recovery()
+        await asyncio.sleep(60 * 60 * 24)

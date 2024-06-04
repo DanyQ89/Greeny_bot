@@ -10,9 +10,9 @@ from utils.buttons import text_of_anketa_button, photos_kb_button, show_profile_
 from data.change_profile_user import ChangeProfileCallback as C_B
 from data.change_profile_user import ChangeSettings
 from utils.help_functions import show_user_profile
+from sqlalchemy import select
 from geopy.geocoders import Nominatim
 from geopy.adapters import AioHTTPAdapter
-from sqlalchemy import select
 
 change_parameters_router = Router(name=__name__)
 
@@ -20,7 +20,6 @@ change_parameters_router = Router(name=__name__)
 @change_parameters_router.callback_query(C_B.filter())
 async def change_menu(query: CallbackQuery, state: FSMContext):
     text = query.data.split(':')[1]
-
     if not any([text == i[1] for i in show_profile_kb_button]):
         await query.message.answer('<i>Выберите один из предложенных вариантов ответа </i>')
     else:
@@ -154,6 +153,19 @@ async def change_coords(msg: Message, state: FSMContext):
             loc = await geolocator.reverse((user.coord_x, user.coord_y), exactly_one=True)
             address = loc.raw['address']
             user.city = address.get('city', 'none')
+            try:
+                user.city = address['city']
+            except Exception:
+                try:
+                    user.city = address['state']
+                except Exception:
+                    try:
+                        user.city = address['region']
+                    except Exception:
+                        try:
+                            user.city = address['country']
+                        except Exception:
+                            user.city = 'none'
         await db_session.commit()
         await db_session.close()
         await msg.answer('<b>Координаты успено обновлены!</b>')
@@ -220,8 +232,7 @@ async def change_photos(msg: Message, state: FSMContext):
         photos = msg.photo
         if photos:
             photo_id = photos[0].file_id
-            from bot import bot
-            await bot.download(photo_id)
+            await msg.bot.download(photo_id)
             lenn = len(user.photos.split() if user.photos else [])
             if not lenn:
                 user.photos += photo_id

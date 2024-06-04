@@ -1,7 +1,7 @@
 import sqlite3
 
 import asyncio
-from aiogram import Router, Dispatcher, Bot, F, filters
+from aiogram import Router, Dispatcher, Bot, filters
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
@@ -20,27 +20,21 @@ from config import token
 from data.database import create_session
 bot = Bot(token=token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
-# conn = sqlite3.connect('./db/my_database.sqlite')
-# cursor = conn.cursor()
 router = Router()
-class SA(StatesGroup):
-    media = State()
 
-def help_kb():
-    buider = ReplyKeyboardBuilder()
-    buider.add()
+class F(StatesGroup):
+    photo = State()
 @router.message(Command('start'))
-async def send_media(msg: Message, state: FSMContext):
-    # await msg.answer('@' + msg.from_user.username)
-    session =  create_session()
-    user = session
+async def start(msg: Message, state: FSMContext):
     await msg.answer('meow')
-    await state.set_state(SA.media)
+    await state.set_state(F.photo)
+@router.message(F.photo)
+async def send_media(msg: Message, state: FSMContext):
+    photo = msg.photo[-1].file_id
+    print(photo)
+    photo = await msg.bot.download(photo)
+    # print(photo.read())
 
-@router.message(SA.media)
-async def second_func(msg: Message, state: FSMContext):
-    text = msg.text
-    await msg.answer(str(len(text)), text)
 
 
 async def main():

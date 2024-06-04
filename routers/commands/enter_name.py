@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from settings_user import Settings
-from db_work import get_user_by_id
+
 name_age_router = Router()
 from data import database
 from data.user_form import User

@@ -23,7 +23,6 @@ async def height_min(msg: Message, state: FSMContext):
             if msg.text.isdigit() and 99 < int(msg.text) < user.maxHeight:
                 user.minHeight = int(msg.text)
 
-
                 await msg.answer(f'<b>Данные успешно сохранены!</b>')
                 await msg.answer('<b>Ваши фильтры пользователей:\n'
                                  f'Возраст: {user.minAge} - {user.maxAge}\n'
@@ -44,6 +43,7 @@ async def height_min(msg: Message, state: FSMContext):
             await session.close()
     else:
         await msg.answer('<i>К сожалению, вы не можете пользоваться опциями Premium-пользователя </i>')
+
 
 @premium_height_router.message(Settings.max_height)
 async def height_min(msg: Message, state: FSMContext):

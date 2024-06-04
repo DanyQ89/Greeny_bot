@@ -36,11 +36,16 @@ async def premium(query: CallbackQuery, state: FSMContext):
         session = await database.create_session()
         user = await session.execute(select(User).filter_by(user_id=str(query.message.chat.id)))
         user = user.scalars().first()
+        user.premium_like += 1
+        user.premium_back += 3
         if user.premium:
             await query.message.edit_text('<b>Выберите действие:</b>', reply_markup=main_menu_anketa_kb_premium())
         else:
             await query.message.edit_text('<b>Выберите действие:</b>', reply_markup=main_menu_anketa_kb())
+        await session.commit()
+        await session.close()
         await state.clear()
+
     else:
         if number == '30':
             amount = 299 * 100
@@ -55,7 +60,7 @@ async def premium(query: CallbackQuery, state: FSMContext):
             title='✨Greeny premium✨',
             description=f'🟢Premium-Подписка на {number} дней🟢',
             payload='premium_invoice_payload',
-            provider_token='1744374395:TEST:2927d276fa3aae2fcd47',
+            provider_token='1744374395:TEST:ca5db6e1c02101c0e4ac',
             currency='RUB',
             prices=[LabeledPrice(label=f'✨{number} дней Greeny Premium✨', amount=amount)]
         )

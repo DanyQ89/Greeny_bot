@@ -14,18 +14,17 @@ router = Router(name=__name__)
 
 
 @router.message(CommandStart())
-# @router.callback_query(F.data == 'come_home')
 async def start(msg: Message, state: FSMContext):
     db_sess = await database.create_session()  # AsyncSession
     user = await db_sess.execute(select(User).filter_by(user_id=str(msg.from_user.id)))
     user = user.scalars().first()
     try:
+        user.username = str(msg.from_user.username)
         if not user.find_gender:
             raise Exception
         await show_user_profile(msg, state)
 
     except Exception as err:
-        print(err)
         if not user or not user.username:
             user = User()
             user.user_id = str(msg.from_user.id)
@@ -36,4 +35,5 @@ async def start(msg: Message, state: FSMContext):
         await state.set_state(Settings.lang)
 
     finally:
+        await db_sess.commit()
         await db_sess.close()

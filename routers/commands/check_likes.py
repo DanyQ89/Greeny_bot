@@ -33,7 +33,10 @@ async def check_likes(query: CallbackQuery, state: FSMContext):
         await query.message.edit_text('<i>На данный момент список пользователей, которым вы понравились, пуст</i>',
                                       reply_markup=go_home_kb())
     else:
-        array_of_liked = pickle.loads(user.arr_of_liked_ids)
+        try:
+            array_of_liked = pickle.loads(user.arr_of_liked_ids)
+        except Exception:
+            array_of_liked = []
         lenn = str(len(array_of_liked))
         if lenn[-1] == '1' and lenn != '11':
             word_user = 'пользователю'
@@ -52,7 +55,6 @@ async def checking_likes(query: CallbackQuery, state: FSMContext):
 
 @check_likes_router.callback_query(F.data == 'come_home')
 async def go_home(query: CallbackQuery, state: FSMContext):
-    print("here")
     db_session = await database.create_session()  # AsyncSession
     user = await db_session.execute(select(User).filter_by(user_id=str(query.from_user.id)))
     user = user.scalars().first()
@@ -77,13 +79,17 @@ async def go_home(query: CallbackQuery, state: FSMContext):
 
     try:
         if user:
+            try:
+                arr = pickle.loads(user.arr_of_liked_ids)
+            except Exception:
+                arr = []
             if user.premium:
-                if user.arr_of_liked_ids:
+                if arr:
                     func = main_menu_anketa_kb_premium_w_likes()
                 else:
                     func = main_menu_anketa_kb_premium()
             else:
-                if user.arr_of_liked_ids:
+                if arr:
                     func = main_menu_anketa_kb_w_likes()
                 else:
                     func = main_menu_anketa_kb()
@@ -103,7 +109,10 @@ async def do_the_deal(msg: Message, state: FSMContext, meow=False):
     sess = await database.create_session()
     user = await sess.execute(select(User).filter_by(user_id=str(msg.chat.id)))
     user = user.scalars().first()
-    array_of_liked = pickle.loads(user.arr_of_liked_ids)
+    try:
+        array_of_liked = pickle.loads(user.arr_of_liked_ids)
+    except Exception:
+        array_of_liked = []
     try:
         if not array_of_liked:
             await msg.answer('<b>Вы просмотрели всех пользователей</b>', reply_markup=go_home_kb())
