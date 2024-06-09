@@ -1,24 +1,21 @@
 import pickle
-import quopri
 
 from aiogram import Router, F
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery
+from sqlalchemy import select
 
 from data import database
-from data.user_form import User
-from aiogram.types import InputMediaPhoto, Message, ReplyKeyboardRemove, CallbackQuery
-
 # from settings_user import Settings
 from data.change_profile_user import ChangeSettings as Settings
+from data.user_form import User
+from utils.buttons import check_likes_kb_button
+from utils.help_functions import send_profile, show_user_profile
 from utils.keyboards import (
     main_menu_anketa_kb, main_menu_anketa_kb_premium,
     main_menu_anketa_kb_premium_w_likes, main_menu_anketa_kb_w_likes,
     check_likes_kb, check_likes_final_kb, go_home_kb
 )
-from aiogram.fsm.context import FSMContext
-from data.change_profile_user import ChangeProfileCallback
-from sqlalchemy import select
-from utils.help_functions import send_profile, show_user_profile
-from utils.buttons import check_likes_kb_button
 from .base_commands import start
 
 check_likes_router = Router(name=__name__)

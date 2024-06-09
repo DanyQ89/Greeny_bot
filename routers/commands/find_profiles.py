@@ -72,10 +72,9 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                 await msg.answer('<i> Профили, подходящие по вашим параметрам, пока не найдены, попробуйте позже</i>',
                                  reply_markup=go_home_kb())
         else:
-            meow = False
             check = True if (user.last_user_id and arr) else False
             reaction = msg.text
-            if check and (reaction == '🏠'):
+            if reaction == '🏠':
                 await start(msg, state)
                 # await state.clear()
             # elif check or reaction != 'Выберите действие:':
@@ -99,7 +98,7 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                             #
                             #
                         elif reaction == '🤮':
-                            meow = True
+                            pass
                         elif reaction == '❤️‍🔥':
                             if user.premium_like > 0:
                                 liked_user = await session.execute(
@@ -150,7 +149,7 @@ async def find_profiles_message(msg: Message, state: FSMContext, userid=None):
                             #
                             #
                         elif reaction == '🤮':
-                            meow = True
+                            pass
                         else:
                             await msg.answer('<i>Такого варианта ответа не существует </i>')
                             arr.insert(0, user.last_user_id)

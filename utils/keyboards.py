@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 # from .buttons import (langs_kb_buttons, who_kb_buttons, find_who_kb_buttons, photos_kb_button, location_kb_button, \
 #                      text_of_anketa_button, main_menu_kb_button, show_profile_kb_button, photos_del_or_not_kb_button, \
@@ -120,11 +120,18 @@ def like_or_not_premium_kb():
 
 def premium_types_kb():
     builder = InlineKeyboardBuilder()
-    for text, callback in premium_types_kb_buttons:
+    for text, callback in premium_types_kb_buttons_average:
         builder.button(text=text, callback_data=PremiumInline(days=callback).pack())
     builder.adjust(1)
     return builder.as_markup()
 
+
+def premium_types_kb_premium():
+    builder = InlineKeyboardBuilder()
+    for text, callback in premium_types_kb_buttons_premium:
+        builder.button(text=text, callback_data=PremiumInline(days=callback).pack())
+    builder.adjust(1)
+    return builder.as_markup()
 
 def premium_settings_kb():
     builder = InlineKeyboardBuilder()
@@ -162,5 +169,14 @@ def go_home_edit_text_kb():
     builder = InlineKeyboardBuilder()
     for text, callback in go_home_kb_button_edit_text:
         builder.button(text=text, callback_data=callback)
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def go_home_kb_premium():
+    builder = InlineKeyboardBuilder()
+    for text, callback in go_home_premium_button_edit_text[:-1]:
+        builder.button(text=text, callback_data=PremiumInline(days=callback).pack())
+    builder.button(text=go_home_premium_button_edit_text[-1][0], callback_data=go_home_premium_button_edit_text[-1][1])
     builder.adjust(1)
     return builder.as_markup()
