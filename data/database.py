@@ -12,7 +12,7 @@ async def init_models():
     if __factory:
         return
 
-    conn_str = 'sqlite+aiosqlite:///./db/users_data.sqlite?check_same_thread=False'
+    conn_str = 'sqlite+aiosqlite:///./db/src.sqlite?check_same_thread=False'
 
     engine = create_async_engine(conn_str, echo=False)
     __factory = async_sessionmaker(bind=engine, class_=AsyncSession)

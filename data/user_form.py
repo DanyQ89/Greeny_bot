@@ -28,3 +28,9 @@ class User(SqlAlchemyBase):
     last_user_id = Column(String)
     premium = Column(Boolean, default=False)
     end_premium = Column(Date)
+<<<<<<< HEAD
+=======
+    premium_like = Column(Integer, default=0)
+    premium_back = Column(Integer, default=3)
+
+>>>>>>> be33045550988345cd2253a86af969908e9ad8ee
