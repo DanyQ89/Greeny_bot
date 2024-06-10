@@ -25,7 +25,6 @@ async def coords_photo(msg: Message, state: FSMContext):
                                  adapter_factory=AioHTTPAdapter) as geolocator:
                 loc = await geolocator.reverse((user.coord_x, user.coord_y), exactly_one=True)
                 address = loc.raw['address']
-                print(address)
                 user.city = address.get('city', 'none')
                 try:
                     user.city = address['city']
@@ -43,11 +42,11 @@ async def coords_photo(msg: Message, state: FSMContext):
             user.photos = ''
             await session.commit()
             await session.close()
-            await msg.answer('<b> Пришлите свои фотографии (до 5, присылайте по одной фотографии за раз) </b>',
+            await msg.answer('<b>Пришлите свои фотографии (до 5, присылайте по одной фотографии за раз)</b>',
                              reply_markup=photos_kb())
             await state.set_state(Settings.photo)
         else:
-            await msg.answer('<i> Укажите ваши координаты с помощью кнопки </i>', reply_markup=location_kb())
+            await msg.answer('<i>Укажите ваши координаты с помощью кнопки </i>', reply_markup=location_kb())
             await state.set_state(Settings.coords)
     except Exception as err:
-        await msg.answer('<i> Пришлите свои координаты с помощью кнопки</i>')
+        await msg.answer('<i>Пришлите свои координаты с помощью кнопки</i>')

@@ -12,3 +12,7 @@ class Settings(StatesGroup):
     who = State()
     find_who = State()
     find_profiles = State()
+    min_height = State()
+    max_height = State()
+    min_age = State()
+    max_age = State()

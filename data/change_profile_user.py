@@ -2,6 +2,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
+
 class ChangeSettings(StatesGroup):
     lang = State()
     name = State()
@@ -15,7 +16,7 @@ class ChangeSettings(StatesGroup):
     find_who = State()
     find_profiles = State()
     letter_msg = State()
-
+    check_like = State()
 
 class ChangeProfileCallback(CallbackData, prefix='change'):
     part: str

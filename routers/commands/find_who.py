@@ -29,13 +29,13 @@ async def who_find_who(msg: Message, state: FSMContext):
             # elif 'Девушка' in text:
                 user.gender = 'f'
             await session.commit()
-            await msg.answer('<b> Кого вы хотите найти? </b>', reply_markup=find_who_kb())
+            await msg.answer('<b>Кого вы хотите найти?</b>', reply_markup=find_who_kb())
             await state.set_state(Settings.find_who)
         else:
-            await msg.answer('<i> Такого варианта ответа не существует </i>')
+            await msg.answer('<i>Такого варианта ответа не существует </i>')
             await state.set_state(Settings.who)
     except Exception as err:
-        await msg.answer('<b> Выберите один из предложенных вариантов ответа </b>')
+        await msg.answer('<b>Выберите один из предложенных вариантов ответа</b>')
         await state.set_state(Settings.who)
 
 
@@ -50,20 +50,15 @@ async def find_who_end(msg: Message, state: FSMContext):
             if 'Парня' in text:
                 user.find_gender = 'm'
             else:
-<<<<<<< HEAD
-                user.find_gender = 'n'
-=======
-            # elif 'Девушку' in text:
                 user.find_gender = 'f'
->>>>>>> be33045550988345cd2253a86af969908e9ad8ee
             await show_user_profile(msg, state)
             await session.commit()
             await state.clear()
         else:
-            await msg.answer('<i> Такого варианта ответа не существует </i>')
+            await msg.answer('<i>Такого варианта ответа не существует </i>')
             await state.set_state(Settings.find_who)
     except Exception as err:
-        await msg.answer('<b> Выберите один из предложенных вариантов ответа </b>')
+        await msg.answer('<b>Выберите один из предложенных вариантов ответа</b>')
         await state.set_state(Settings.find_who)
     finally:
         await session.close()

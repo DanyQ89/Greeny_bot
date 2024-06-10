@@ -24,13 +24,12 @@ class User(SqlAlchemyBase):
     minHeight = Column(Integer)
     maxHeight = Column(Integer)
     arr_of_ids = Column(LargeBinary)
+    arr_of_liked_ids = Column(LargeBinary)
     city = Column(String)
     last_user_id = Column(String)
+    last_last_user_id = Column(String)
     premium = Column(Boolean, default=False)
-    end_premium = Column(Date)
-<<<<<<< HEAD
-=======
+    end_premium = Column(Date, nullable=True)
     premium_like = Column(Integer, default=0)
-    premium_back = Column(Integer, default=3)
-
->>>>>>> be33045550988345cd2253a86af969908e9ad8ee
+    premium_back = Column(Integer, default=0)
+    active = Column(Boolean, default=True)

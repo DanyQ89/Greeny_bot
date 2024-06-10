@@ -1,7 +1,7 @@
 import sqlite3
 
 import asyncio
-from aiogram import Router, Dispatcher, Bot, F, filters
+from aiogram import Router, Dispatcher, Bot, filters
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
@@ -11,6 +11,7 @@ from aiogram.types import Message, KeyboardButton, InlineKeyboardButton, Callbac
 from aiogram.types.reply_keyboard_remove import ReplyKeyboardRemove
 from aiogram.methods import edit_message_text, edit_message_reply_markup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from utils.keyboards import link_and_check_kb
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
@@ -18,29 +19,31 @@ from io import BytesIO
 import logging
 from config import token
 from data.database import create_session
+import requests
+import json
+import uuid
+from routers.commands.buy_premium import create_payment
+import aiohttp
+
+
 bot = Bot(token=token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
-# conn = sqlite3.connect('./db/my_database.sqlite')
-# cursor = conn.cursor()
 router = Router()
-class SA(StatesGroup):
-    media = State()
 
-def help_kb():
-    buider = ReplyKeyboardBuilder()
-    buider.add()
+class F(StatesGroup):
+    photo = State()
 @router.message(Command('start'))
-async def send_media(msg: Message, state: FSMContext):
-    # await msg.answer('@' + msg.from_user.username)
-    session =  create_session()
-    user = session
-    await msg.answer('meow')
-    await state.set_state(SA.media)
+async def start(msg: Message, state: FSMContext):
+    url, id = create_payment(10000.00, str(msg.chat.id))
+    await msg.answer(f"Ваша ссылка: {url}")
 
-@router.message(SA.media)
-async def second_func(msg: Message, state: FSMContext):
-    text = msg.text
-    await msg.answer(str(len(text)), text)
+@router.message(F.photo)
+async def send_media(msg: Message, state: FSMContext):
+    photo = msg.photo[-1].file_id
+    print(photo)
+    photo = await msg.bot.download(photo)
+    # print(photo.read())
+
 
 
 async def main():
