@@ -41,7 +41,7 @@ async def show_user_profile(msg: Message, state: FSMContext, userid=None):
                 f'<b>🟢 {name}, {age}\n'
                 f'🌿 {height} см\n'
                 f'📍 {city}\n'
-                f'{"🖊️" + main_text if main_text else ''}</b>')]
+                f'{"🖊️" + main_text if main_text else ""}</b>')]
             else:
                 arr = [InputMediaPhoto(media=photos.split()[0], caption=
                 f'{name}, {age}\n'
@@ -103,13 +103,13 @@ async def send_profile(msg, state, user_id, send_to):
             f'<b>🟢 {name}, {age}\n'
             f'🌿 {height} см\n'
             f'📍 {km}\n'
-            f'{"🖊️" + main_text if main_text else ''}</b>')]
+            f'{"🖊️" + main_text if main_text else ""}</b>')]
         else:
             arr = [InputMediaPhoto(media=photos.split()[0], caption=
             f'{name}, {age}\n'
             f'🌿 {height} см\n'
             f'📍 {km}\n'
-            f'{"🖊️" + main_text if main_text else ''}')]
+            f'{"🖊️" + main_text if main_text else ""}')]
 
         for i in photos.split()[1:]:
             arr.append(InputMediaPhoto(media=str(i)))
