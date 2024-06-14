@@ -47,7 +47,7 @@ async def show_user_profile(msg: Message, state: FSMContext, userid=None):
                 f'{name}, {age}\n'
                 f'🌿 {height} см\n'
                 f'📍 {city}\n'
-                f'{"🖊️" + main_text if main_text else ''}')]
+                f'{"🖊️" + main_text if main_text else ""}')]
 
             if photos.count(' '):
                 for i in photos.split()[1:]:
